@@ -7,17 +7,14 @@ struct pagefileHeader{
 	int numPages;
 };
 
-struct pageHeader{
-	bool leafNode;
-	int numRecords;
-};
 
 static const int FILE_HEADER_SIZE = sizeof(pagefileHeader);
-static const int PAGE_HEADER_SIZE = sizeof(pageHeader); 
 static const int PAGE_SIZE = 1024;
-static const int NUM_KEYS = ((PAGE_SIZE - PAGE_HEADER_SIZE)/sizeof(int) - 1)/2;
+static const int NUM_KEYS = ((PAGE_SIZE - sizeof(bool)-sizeof(int))/sizeof(int) - 1)/2;
 
 struct node{
+	bool leafNode;
+	int numRecords;
 	int keys[NUM_KEYS];
 	int pointers[NUM_KEYS+1];
 };
@@ -33,9 +30,9 @@ class pagefile
 	public:
 		int open(const char* &filename);
 		int close();
-        void read(int pageID, void* buffer);
+        node read(int pageID);
         int endPID();
-        int write(int pageID, const void* buffer);
+        void write(int pageID, node page);
         int getTotalRecords(int pageID);
         int isLeafNode(int pageID);
 

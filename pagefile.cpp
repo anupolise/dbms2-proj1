@@ -42,23 +42,57 @@ int pagefile::open(const char* &filename)
 	}
 	return 0;
 }
+
+
 int pagefile::close()
 {
 	fclose(pFile);
     return 0;
 }
-void pagefile::read(int pageID, void* buffer)
-{
 
-    return;
+int pagefile::getTotalRecords(int pageID){
+	node n = node();
+	char* buffer =  (char*)malloc(PAGE_SIZE);
+	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
+	fseek(pFile, position, SEEK_SET);
+	fread(buffer, PAGE_SIZE, 1,pFile);
+	memcpy((char*)&n, buffer, PAGE_SIZE);
+	return n.numRecords;    
 }
+
+int pagefile::isLeafNode(int pageID){
+	node n = node();
+	char* buffer =  (char*)malloc(PAGE_SIZE);
+	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
+	fseek(pFile, position, SEEK_SET);
+	fread(buffer, PAGE_SIZE, 1,pFile);
+	memcpy((char*)&n, buffer, PAGE_SIZE);
+	return n.leafNode;
+}
+
+node pagefile::read(int pageID)
+{
+	node n = node();
+	char* buffer =  (char*)malloc(PAGE_SIZE);
+	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
+	fseek(pFile, position, SEEK_SET);
+	fread(buffer, PAGE_SIZE, 1,pFile);
+	memcpy((char*)&n, buffer, PAGE_SIZE);
+	return n;
+}
+
 int pagefile::endPID()
 {
     return 0;
 }
 
-int pagefile::write(int pageID, const void* buffer)
+void pagefile::write(int pageID, node page)
 {
-    return 0;
+	char* buffer =  (char*)malloc(PAGE_SIZE);
+	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
+	fseek(pFile, position, SEEK_SET);
+	memcpy((char*)&page, buffer, PAGE_SIZE);
+	fwrite(buffer, 1, PAGE_SIZE,pFile);
+    return;
 }
 

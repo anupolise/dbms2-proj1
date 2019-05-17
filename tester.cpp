@@ -4,72 +4,71 @@
 
 using namespace std;
 
+void test_recordfile();
+
 int main()
 {
-   cout<<"Hello world!"<<endl;
+  test_recordfile();
+
+    
+}
+
+void test_recordfile()
+{
+   cout<<"TESTING RECORD FILE -----------------------------"<<endl;
    recordfile r;
    const char* filename = "test.txt";
   
    const char* test = "test";
- 	char* buf = (char*)malloc(sizeof(record));
-   cout << sizeof(buf) << endl;
-   cout << sizeof(record) << endl;
+   char* buf = (char*)malloc(sizeof(record));
 
-   int ret = r.open(filename, 'a');
-   cout<<"Debug open:"<<ret<<endl;
+   int ret = r.open(filename);
+   cout<<"Debug Open: "<<ret<<endl;
 
    // r.readInCSV(test);
 
-	memset(buf, 0, r.RECORD_SIZE);
+   memset(buf, 0, r.RECORD_SIZE);
 
-   cout<<"READ------:"<<endl;
+   cout<<"READ BUF 1 ------:"<<endl;
 
    record rec = record();
 
    r.read(1, buf);
 
-		//print value in buffer
-		for(int i=0;i<sizeof(record);i++){
-			printf("%c ",buf[i]);
-		}
+      //print value in buffer
+      for(int i=0;i<sizeof(record);i++){
+         printf("%c ",buf[i]);
+      }
 
-   cout<<"\nREAD------:"<<endl;
+   cout<<"\n END READ------:"<<endl;
 
    // record rec1 = record();
    record* rec_ptr = &rec;
    memset(rec_ptr, 0, sizeof(record));
    r.read(2, buf);
-	memcpy((char*)&rec, buf, sizeof(record));
-	cout<<rec.ssn<<endl;
+   memcpy((char*)&rec, buf, sizeof(record));
+   cout<<"REC 2 SSN: "<<rec.ssn<<endl;
 
-	// r.read(1, buf);
-	// memcpy((char*)&rec, buf, sizeof(r.RECORD_SIZE));
-	// cout<<rec.empID<<endl;
+   record rec1 = record();
+   memset(buf, 0, sizeof(record));
+   r.read(1, buf);
+   memcpy((char*)&rec1, buf, sizeof(record));
+   cout<<"REC 1 EMPID: "<<rec1.empID<<endl;
 
-	// r.read(2, buf);
-	// memcpy((char*)&rec, buf, sizeof(r.RECORD_SIZE));
-	// cout<<rec.fname<<endl;
-
-   memset(buf,0, sizeof(record));
-   r.read(10, buf);
-   memcpy((char*)&rec, buf, sizeof(r.RECORD_SIZE));
+   record rec2 = record();
+   memset(buf, 0, sizeof(record));
+   r.read(0, buf);
    for(int i=0;i<sizeof(record);i++){
          printf("%c ",buf[i]);
-      }
-   cout<<rec.lname<<endl;
+   }
+   memcpy((char*)&rec2, buf, sizeof(record));
+   cout<<"\nREC 2 FNAME: "<<rec2.fname<<endl;
 
+ 
+    cout<<"DONE ----------------"<<endl;
 
-   cout<<"done"<<endl;
-
-   // r.
-   // int bro[2] = {20,30};
-   // char* second = (char*)bro;
-   // second = NULL;
-   // cout<<"bro: "<<second<<endl;
-   // r.write(0,second);
-   // r.read(0, second);
+   
 
    r.close();
 
-    
 }

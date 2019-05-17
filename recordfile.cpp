@@ -107,7 +107,7 @@ void recordfile::readInCSV(const char* filename)
 	return;
 }
 
-int recordfile::open(const char* filename, char mode)
+int recordfile::open(const char* filename)
 {
 	recordFileName = filename;
 	char* headerbuff = (char*)malloc(HEADER_SIZE);
@@ -132,7 +132,7 @@ int recordfile::open(const char* filename, char mode)
 		fseek(pFile, 0, SEEK_SET);
    	 	fgets(headerbuff, HEADER_SIZE, pFile);
     	int numRecs = atoi(headerbuff);
-    	cout<<"numrecs-----" <<numRecs<<endl;
+    	cout<<"Number of recs  -----  " <<numRecs<<endl;
 	} 
 	//if file doesnt exist 
 	else {
