@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
 #include "recordfile.h"
 
 
@@ -74,9 +75,7 @@ void recordfile::readInCSV(const char* filename)
 
 		}
 
-		 char* buffer =  (char*)malloc(sizeof(record));
-
-
+		char* buffer =  (char*)malloc(sizeof(record));
 		memset(buffer, 0, sizeof(record));
 		memcpy(buffer, &currRec, sizeof(currRec));
 		// printf("%s", buffer);
@@ -113,8 +112,9 @@ int recordfile::open(const char* filename)
 	char* headerbuff = (char*)malloc(HEADER_SIZE);
 
 
-	pFile = fopen(filename, "r");
+	pFile = fopen(filename, "ab+");
 	if(!pFile){
+		cout<<"here"<<endl;
 		return -1;
 	}
 
@@ -166,20 +166,20 @@ int recordfile::close()
 
 
 
-void* recordfile::read(int recordID, char* buffer)
+void recordfile::read(int recordID, char* buffer)
 {
 	int position = recordID * RECORD_SIZE + HEADER_SIZE;
 	fseek(pFile, position, SEEK_SET);
 	fread(buffer, RECORD_SIZE, 1,pFile);
-	return buffer;    
+	return;    
 }
 
 
 
-void recordfile::append(char* buffer)
+int recordfile::append(char* buffer)
 {
 	if(!pFile){
-		return;
+		return -1;
 	}
 	//change header
 	char* headerbuff = (char*)malloc(HEADER_SIZE);
@@ -208,7 +208,7 @@ void recordfile::append(char* buffer)
 	}
 
 	fwrite(buffer,1, sizeof(record), pFile);
-	return;
+	return numRecs;
 }
 
 

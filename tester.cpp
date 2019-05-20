@@ -1,23 +1,82 @@
 #include <iostream>
 #include "recordfile.h"
 #include "pagefile.h"
+#include "btree.h"
 
 using namespace std;
 
 void test_recordfile();
+void test_simplePageFile();
+void test_singleNodeManipulations();
 
 int main()
 {
-  test_recordfile();
+   //test_recordfile();
+   // test_simplePageFile();
+   // test_singleNodeManipulations();
 
-    
+
+}
+void test_singleNodeManipulations()
+{
+   pagefile p;
+   node tester  = p.nodeConstructor(8);
+   for(int i = 0; i<8; i++)
+   {
+      tester.keys[i] = (i+1)*10;
+   }
+   for(int i = 0; i<9; i++)
+   {
+      tester.pointers[i] = (i+1);
+   }
+
+   btree tree; 
+   p.printNode(tester);
+   cout<<"get next page *80*:  " << tree.getNextPage(80, tester) <<endl;
+   cout<<"get next page *53*:  " << tree.getNextPage(53, tester) <<endl;
+   cout<<"get next page *9*:  " << tree.getNextPage(9, tester) <<endl;
+
+   cout<<"PAGE INSERTION RECORD 35,p100:  "<<endl;
+
+   p.printNode(tree.insertVal(35,100, tester));
+
+   cout<<"PAGE INSERTION page 35,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(35,111, 222, tester));
+
+
+}
+
+void test_simplePageFile()
+{
+   cout<<"TESTING PAGE FILE 1 -----------------------------"<<endl;
+
+   pagefile p;
+   const char* filename = "treefile.txt";
+   int ret = p.open(filename);
+   cout<<"Debug Open: "<<ret<<endl;
+   cout<<"num pages "<<p.getTotalPages()<<endl;
+   cout<<"root page "<<p.getRootNode()<<endl;
+   p.incrPageHeaderNumPages();
+   p.setRootNode(7);
+   cout<<"num pages "<<p.getTotalPages()<<endl;
+   cout<<"root page "<<p.getRootNode()<<endl;
+
+   node node1 = p.nodeConstructor(7);
+   cout<<"szie of node" <<sizeof(node1)<<endl;;
+   node red = node();
+   p.write(7,node1);
+   red = p.read(7);
+   cout<<"page 7 page num -  "<<red.pageNum<<endl;
+   cout<<"page 7 leafmarker - "<<red.leafNode<<endl;
+   p.close();
+
 }
 
 void test_recordfile()
 {
    cout<<"TESTING RECORD FILE -----------------------------"<<endl;
    recordfile r;
-   const char* filename = "test.txt";
+   const char* filename = "recordfile.txt";
   
    const char* test = "test";
    char* buf = (char*)malloc(sizeof(record));
@@ -25,7 +84,7 @@ void test_recordfile()
    int ret = r.open(filename);
    cout<<"Debug Open: "<<ret<<endl;
 
-   // r.readInCSV(test);
+    // r.readInCSV(test);
 
    memset(buf, 0, r.RECORD_SIZE);
 
@@ -62,7 +121,7 @@ void test_recordfile()
          printf("%c ",buf[i]);
    }
    memcpy((char*)&rec2, buf, sizeof(record));
-   cout<<"\nREC 2 FNAME: "<<rec2.fname<<endl;
+   cout<<"\nREC 0 FNAME: "<<rec2.fname<<endl;
 
  
     cout<<"DONE ----------------"<<endl;

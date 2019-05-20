@@ -31,8 +31,8 @@ class recordfile
 		void readInCSV(const char* filename);
 		int open(const char* filename);
 		int close();
-        void* read(int recordID, char* buffer);
-        void append(char* buffer);
+        void read(int recordID, char* buffer);
+        int append(char* buffer);
         int write(int recordID, const char* buffer);
 
 };
