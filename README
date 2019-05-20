@@ -1,0 +1,34 @@
+README
+
+Anu Polisetty 8916967
+
+Notes: 
+- I'm still debugging some things so you might get a lot of garbage output
+- I haven't been testing with the big data file. I wrote a file called "test" which I've been using so I can use hardcoded values to access different things
+- So far pagefile and record file work and have tests written for them in tester.cpp. I'm currently working on debugging my btree (main) class.
+
+recordfile class
+The pagefile class creates a file that stores the data of the records. Main functions used are append(record rec) where record is a struct, and read(int recordID, char* buffer). There is also a readInCSV function, do not call this function from record class! It is only meant for testing. 
+Also readInCSV only works for the CSV sheet with 37(?) columns, and won't work for the new compressed CSV file (the one that took out all the irrelevant colums).
+
+pagefile class
+The pagefile class creates a file that stores the data of the tree. It has a header that holds the number of pages/nodes in the tree, and the rootNode page number. After that it contains blocks/pages that contain an array of keys and an array of pointers, and other information like if it's a leafnode. its pagenum and how many tuples/keys it has. Everything in this class except for endPID() has been implemented. I'm not using endPID() though nor do I have use for it.
+
+btree class
+Btree class has 3 main functions: insert, search and a constructor. Whenever creating a btree object you must initialize with a constructor!
+
+Currently what works with medium to shallow testing:
+node insertVal(int key, int recID, node pageNode);
+node insertValPage(int key, int leftPage, int rightPage, node pageNode);
+int  getNextPage(int key, node currNode);
+int searchValue(int key, node currNode);
+
+Hasn't been tested
+void insert(record rec) which is being used in readinCSV() 
+	currently testing both and getting pretty close to working state
+
+Big thing I need towork on:
+Right now I kinda just open and close and read and write from the files whenever I want/need to aka I don't have a buffer. While this still works, I understand it's inefficient so I will add that in a later iteration.
+
+
+
