@@ -198,16 +198,20 @@ int recordfile::append(char* buffer)
 
 
 	//write record to the file
-	cout<<position <<endl;
+	cout<<"position " <<position <<endl;
 	fseek(pFile, position, SEEK_SET);
-
+	cout<<"hello"<<endl;
 
 	//print value in buffer
 	for(int i=0;i<sizeof(record);i++){
 		printf("%c ",buffer[i]);
 	}
+	cout<<"hello1"<<endl;
+
 
 	fwrite(buffer,1, sizeof(record), pFile);
+	cout<<"hello2"<<endl;
+
 	return numRecs;
 }
 

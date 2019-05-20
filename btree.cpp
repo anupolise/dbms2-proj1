@@ -6,10 +6,19 @@ btree::btree()
 {
    pagefileName = "treefile.txt";
    recordfileName = "recordfile.txt";
+   pageFile.open(pagefileName);
+   node rootNode =  pageFile.nodeConstructor(0);
+   cout<<"ROOTNODE       "<<rootNode.leafNode<<endl;
+   pageFile.write(0, rootNode);
+   pageFile.setRootNode(0);
+   pageFile.close();
 }
 
 void btree::insert(record rec)
 {
+	pageFile.open(pagefileName);
+	recFile.open(recordfileName);
+
 	//append the record to the record file
 	char* buffer =  (char*)malloc(sizeof(record));
 	memset(buffer, 0, sizeof(record));
@@ -18,6 +27,9 @@ void btree::insert(record rec)
 
 	//get last leaf node
 	node currNode = pageFile.read(pageFile.getRootNode());
+
+	pageFile.printNode(currNode);
+
 	stack<int> traversalPages;
 	traversalPages.push(currNode.pageNum);
 	int nextPage = 0;
@@ -63,7 +75,16 @@ void btree::insert(record rec)
 		{
 			if(currNode.leafNode)
 			{
-				insertVal(rec.empID, recordID, currNode);
+				cout<<"single leaf insert"<<endl;
+				cout<<"keytoADD  "<< keyToAdd<<endl;
+				cout<<"recordId  "<< recordID<<endl;
+
+				node rewrite = insertVal(keyToAdd, recordID, currNode);
+				pageFile.write(currNode.pageNum, rewrite);
+				cout<< "refreshed node "<<endl;
+				pageFile.printNode(currNode);
+
+
 			}
 			else
 			{
@@ -73,6 +94,8 @@ void btree::insert(record rec)
 		}
 		
 	}
+	pageFile.close();
+	recFile.close();
 	return;
 
 }
@@ -347,11 +370,13 @@ void btree::readInCSV(const char* filename)
 		memcpy(buffer, &currRec, sizeof(currRec));
 		// printf("%s", buffer);
 
-		recFile.append(buffer);
+		// recFile.append(buffer);
 
 		//SANITY CHECK
 		record rec = record();
 		memcpy((char*)&rec, buffer, sizeof(record));
+
+		//testing
 		cout<<"recrid : " <<rec.empID<<endl;
 
 		// printf("Copied byte array is:\n");
@@ -361,8 +386,9 @@ void btree::readInCSV(const char* filename)
 		// 	printf("%c ",buffer[i]);
 		// }
 		
-		printf("\n");
+		// printf("\n");
 
+		insert(rec);
 		//reset info	
 		temp = "";
 		numOfCommas = 0;

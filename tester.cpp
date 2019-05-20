@@ -14,6 +14,13 @@ int main()
    //test_recordfile();
    // test_simplePageFile();
    // test_singleNodeManipulations();
+   btree tree =  btree();
+   tree.readInCSV("test");
+   const char* filen = "treefile.txt";
+   tree.pageFile.open(filen);
+   // int root = tree.pageFile.getRootNode();
+   tree.pageFile.printNode(tree.pageFile.read(0));
+   tree.pageFile.close();
 
 
 }

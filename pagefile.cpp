@@ -25,7 +25,6 @@ int pagefile::open(const char* &filename)
 	if(size > 0){
 		//reopen the file in read write mode
 		pFile = fopen(filename, "rb+");
-		cout<<"jere1"<<endl;
 
 		if(!pFile) return -1;
 
@@ -92,10 +91,6 @@ int pagefile::endPID()
 
 void pagefile::write(int pageID, node page)
 {
-	if(pageID == 0){
-		cout<< "ERROR: this is metadata, don't overwrite with ur stupid function"<<endl;
-		return;
-	}
 	char* buffer =  (char*)malloc(PAGE_SIZE);
 	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
 	fseek(pFile, position, SEEK_SET);

@@ -5,3 +5,5 @@ btree: pagefile.cpp recordfile.cpp btree.cpp tester.cpp
 clean:
 	rm *.o
 	rm btreemain
+	rm recordfile.txt
+	rm treefile.txt
