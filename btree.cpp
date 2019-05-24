@@ -8,7 +8,6 @@ btree::btree()
    recordfileName = "recordfile.txt";
    pageFile.open(pagefileName);
    node rootNode =  pageFile.nodeConstructor(0);
-   cout<<"ROOTNODE       "<<rootNode.leafNode<<endl;
    pageFile.write(0, rootNode);
    pageFile.setRootNode(0);
    pageFile.close();
@@ -320,6 +319,7 @@ void btree::readInCSV(const char* filename)
 					{
 						case 1:
 							//empID
+							cout<<"TESTTTTT    "<<currRec.empID<<endl;
 							currRec.empID = std::stoi(temp);
 							break;
 						case 3:
