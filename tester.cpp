@@ -13,13 +13,17 @@ int main()
 {
    //test_recordfile();
    // test_simplePageFile();
-   // test_singleNodeManipulations();
+    // test_singleNodeManipulations();
    btree tree =  btree();
    tree.readInCSV("test");
    const char* filen = "treefile.txt";
    tree.pageFile.open(filen);
-   // int root = tree.pageFile.getRootNode();
-   tree.pageFile.printNode(tree.pageFile.read(0));
+
+   int root = tree.pageFile.getRootNode();
+   cout<<"FINAL TREE PRINT"<<endl;
+   cout<<"root: "<<root<<endl;
+   tree.pageFile.printNode(tree.pageFile.read(root));
+
    tree.pageFile.close();
 
 
@@ -49,6 +53,22 @@ void test_singleNodeManipulations()
 
    cout<<"PAGE INSERTION page 35,111,222:  "<<endl;
    p.printNode(tree.insertValPage(35,111, 222, tester));
+
+   tester.keys[0] = 4;
+   tester.keys[1] = 15;
+   tester.keys[2] = 20;
+   tester.keys[3] = -1;
+
+   tester.pointers[0] = 1;
+   tester.pointers[1] = 2;
+   tester.pointers[2] = 3;
+   tester.pointers[3] = -1;
+   tester.pointers[4] = -1;
+
+   cout<<"original node:  "<<endl;
+   p.printNode(tester);
+   cout<<"PAGE INSERTION page 10,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(2,111, 222, tester));
 
 
 }

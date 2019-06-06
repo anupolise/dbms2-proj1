@@ -10,6 +10,8 @@ btree::btree()
    node rootNode =  pageFile.nodeConstructor(0);
    pageFile.write(0, rootNode);
    pageFile.setRootNode(0);
+   pageFile.incrPageHeaderNumPages();
+   cout<<"NUM PAGE FILES " << pageFile.getTotalPages();
    pageFile.close();
 }
 
@@ -24,11 +26,13 @@ void btree::insert(record rec)
 	memcpy(buffer, &rec, sizeof(rec));
 	int recordID = recFile.append(buffer);
 
-	//get last leaf node
+	//get head
 	node currNode = pageFile.read(pageFile.getRootNode());
 
-	pageFile.printNode(currNode);
+	//prints the node before insertion
+	//pageFile.printNode(currNode);
 
+	//traverse tree, push pages that we have visited
 	stack<int> traversalPages;
 	traversalPages.push(currNode.pageNum);
 	int nextPage = 0;
@@ -57,15 +61,23 @@ void btree::insert(record rec)
 			//there's no parent node we must create
 			if(traversalPages.empty())
 			{
-				node newParentPage = pageFile.nodeConstructor(pageFile.getTotalPages());
+				cout<<"parent node CREATED :  "<<pageFile.getTotalPages()<<endl;
+
+				//create new root page and incr total pages
+				int parentPageID = pageFile.getTotalPages();
+				node newParentPage = pageFile.nodeConstructor(parentPageID);
 				newParentPage.leafNode = 0;
 				pageFile.incrPageHeaderNumPages();
-				insertValPage(splitPages[2], splitPages[0],splitPages[1], newParentPage);
+
+				newParentPage = insertValPage(splitPages[2], splitPages[0],splitPages[1], newParentPage);
+				pageFile.write(parentPageID, newParentPage);
 				pageFile.setRootNode(newParentPage.pageNum);
 				complete = true;
 			}
 			else
 			{
+				//TODO: actually implement for multiple levels
+				cout<<"we r here"<<endl;
 				currNode = pageFile.read(traversalPages.top());
 				traversalPages.pop();
 			}
@@ -80,8 +92,8 @@ void btree::insert(record rec)
 
 				node rewrite = insertVal(keyToAdd, recordID, currNode);
 				pageFile.write(currNode.pageNum, rewrite);
-				cout<< "refreshed node "<<endl;
-				pageFile.printNode(currNode);
+				cout<<"refreshed node"<< endl;
+				pageFile.printNode(rewrite);
 
 
 			}
@@ -152,6 +164,9 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	int pageNumL = currNode.pageNum;
 	//create new page for split node
 	int pageNumR = pageFile.getTotalPages();
+	//incr total num of pages cuz we created another one
+	pageFile.incrPageHeaderNumPages();
+
 	returnPages.push_back(pageNumL);
 	returnPages.push_back(pageNumR);
 
@@ -159,13 +174,17 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	node recPageR = pageFile.nodeConstructor(pageNumR);
 
 	//physically split the nodes
-	for(int i=MAX_NUM_KEYS/2+1; i<MAX_NUM_KEYS; i++)
+	for(int i=MAX_NUM_KEYS/2; i<MAX_NUM_KEYS; i++)
 	{
-		recPageR.keys[i-MAX_NUM_KEYS/2+1] = recPageL.keys[i];
-		recPageR.pointers[i-MAX_NUM_KEYS/2+1] = recPageL.pointers[i];
+		//displace second half of keys from L to first half of R
+		recPageR.keys[i-MAX_NUM_KEYS/2] = recPageL.keys[i];
 		recPageL.keys[i] = -1;
+
+		recPageR.pointers[i-MAX_NUM_KEYS/2] = recPageL.pointers[i];
 		recPageL.pointers[i] = -1;
 	}
+	//make sure you set the last pointer 
+	recPageR.pointers[MAX_NUM_KEYS] =  recPageL.pointers[MAX_NUM_KEYS];
 
 	//if there was a previous split make sure to put those pages and the last value in the right place
 	if(pastPages.size()!=0)
@@ -190,9 +209,9 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	recPageR.leafNode = true;
 
 	recPageL.numTuples = MAX_NUM_KEYS/2;
-	recPageR.numTuples = MAX_NUM_KEYS - (MAX_NUM_KEYS/2+1);
+	recPageR.numTuples = MAX_NUM_KEYS/2 + (MAX_NUM_KEYS%2);
 
-	//set the next pointer to the next leaf node
+	//set the next pointer to the next leaf node TODO: if it's a leaf node ONLY
 	recPageL.pointers[MAX_NUM_KEYS/2+1] = pageNumR;
 
 	//leftmost (0) key is the key we're pushing up 
@@ -202,8 +221,12 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	pageFile.write(pageNumL, recPageL);
 	pageFile.write(pageNumR, recPageR);
 
-	//incr total num of pages cuz we created another one
-	pageFile.incrPageHeaderNumPages();
+	cout<<"CREATED L: "<<pageNumL<<endl;
+	pageFile.printNode(recPageL);
+	cout<<"CREATED R: "<<pageNumR<<endl;
+	pageFile.printNode(recPageR);
+
+
 
 	return returnPages;
 
@@ -319,7 +342,6 @@ void btree::readInCSV(const char* filename)
 					{
 						case 1:
 							//empID
-							cout<<"TESTTTTT    "<<currRec.empID<<endl;
 							currRec.empID = std::stoi(temp);
 							break;
 						case 3:

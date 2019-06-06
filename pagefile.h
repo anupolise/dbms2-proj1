@@ -4,16 +4,12 @@
 #include <errno.h>
 
 
+static const int MAX_NUM_KEYS = 4;
+
 struct pagefileHeader{
 	int pageRoot;
 	int numPages;
 };
-
-
-static const int FILE_HEADER_SIZE = sizeof(pagefileHeader);
-// static const int PAGE_SIZE = 1024;
-static const int PAGE_SIZE = 45;
-static const int MAX_NUM_KEYS = ((PAGE_SIZE - (sizeof(int)*2 +sizeof(bool)))/sizeof(int) - 1)/2;
 
 struct node{
 	int pageNum;
@@ -22,6 +18,13 @@ struct node{
 	int keys[MAX_NUM_KEYS];
 	int pointers[MAX_NUM_KEYS+1];
 };
+
+
+static const int FILE_HEADER_SIZE = sizeof(pagefileHeader);
+// static const int PAGE_SIZE = 1024;
+static const int PAGE_SIZE = sizeof(node);
+
+
 
 
 class pagefile

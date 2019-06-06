@@ -94,6 +94,7 @@ void pagefile::write(int pageID, node page)
 	char* buffer =  (char*)malloc(PAGE_SIZE);
 	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
 	fseek(pFile, position, SEEK_SET);
+	memset(buffer, 0, PAGE_SIZE);
 	memcpy( buffer, (char*)&page, PAGE_SIZE);
 	fwrite(buffer, 1, PAGE_SIZE,pFile);
     return;
