@@ -129,6 +129,10 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 {
 	vector<int> returnPages;
 
+	int tempKeys[MAX_NUM_KEYS+1];
+	int tempPointers[MAX_NUM_KEYS+2];
+
+
 	int pageNumL = currNode.pageNum;
 	//create new page for split node
 	int pageNumR = pageFile.getTotalPages();
@@ -141,16 +145,70 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	node recPageL = currNode;
 	node recPageR = pageFile.nodeConstructor(pageNumR);
 
-	//physically split the nodes
-	for(int i=MAX_NUM_KEYS/2; i<MAX_NUM_KEYS; i++)
-	{
-		//displace second half of keys from L to first half of R
-		recPageR.keys[i-MAX_NUM_KEYS/2] = recPageL.keys[i];
-		recPageL.keys[i] = -1;
+	// case: leaf node where key[i] = ptr[i] 
+	if(isLeaf){
+		int tempCounter = 0; 
 
-		recPageR.pointers[i-MAX_NUM_KEYS/2] = recPageL.pointers[i];
-		recPageL.pointers[i] = -1;
+		// write key/pointers to temp array
+		for (int i=0; i<MAX_NUM_KEYS; i++){
+			
+			if(currNode.keys[i]<key){
+				tempKeys[tempCounter] = currNode.keys[i];
+				tempPointers[tempCounter] = currNode.pointers[i];
+				tempCounter++;
+			} 
+			else{
+				tempKeys[i] = key;
+				tempPointers[i] = pastPages[0];
+			}
+		}
+
+		// split temp array into two nodes
+		for (int i = 0; i < MAX_NUM_KEYS; i++) {
+			if (i < MAX_NUM_KEYS / 2) {
+				recPageL.keys[i] = tempKeys[i];
+				recPageL.pointers[i] = tempPointers[i];
+			}
+			else {
+				recPageR.keys[i - MAX_NUM_KEYS / 2] = tempKeys[i];
+				recPageR.pointers[i - MAX_NUM_KEYS / 2] = pastPages[1];
+			}
+		}
 	}
+
+	// case: internal node where key[i] = ptr[i + 1]
+	else
+	{
+		int tempCounter = 0; 
+
+		// write key/pointers to temp array
+		for (int i=0; i<MAX_NUM_KEYS; i++){
+			
+			if(currNode.keys[i]<key){
+				tempKeys[tempCounter] = currNode.keys[i];
+				tempPointers[tempCounter] = currNode.pointers[i];
+				tempCounter++;
+			} 
+			else{
+				tempKeys[i] = key;
+				tempPointers[i] = currNode.pointers[i];
+			}
+		}
+		tempPointers[tempCounter] = currNode.pointers[i];
+
+		// split temp array into two nodes
+		for (int i = 0; i < MAX_NUM_KEYS; i++) {
+			if (i < MAX_NUM_KEYS / 2) {
+				recPageL.keys[i] = tempKeys[i];
+				recPageL.pointers[i] = tempPointers[i];
+			}
+			else {
+				recPageR.keys[i - MAX_NUM_KEYS / 2] = tempKeys[i];
+				recPageR.pointers[i - MAX_NUM_KEYS / 2] = tempPointers[i];
+			}
+		}
+	}
+	
 	//make sure you set the last pointer 
 	recPageR.pointers[MAX_NUM_KEYS-MAX_NUM_KEYS/2] =  recPageL.pointers[MAX_NUM_KEYS];
 
