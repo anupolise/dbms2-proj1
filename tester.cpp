@@ -19,10 +19,10 @@ int main()
    const char* filen = "treefile.txt";
    tree.pageFile.open(filen);
 
-   int root = tree.pageFile.getRootNode();
-   cout<<"FINAL TREE PRINT"<<endl;
-   cout<<"root: "<<root<<endl;
-   tree.pageFile.printNode(tree.pageFile.read(root));
+   // int root = tree.pageFile.getRootNode();
+   // cout<<"FINAL TREE PRINT"<<endl;
+   // cout<<"root: "<<root<<endl;
+   // tree.pageFile.printNode(tree.pageFile.read(root));
 
    tree.pageFile.close();
 

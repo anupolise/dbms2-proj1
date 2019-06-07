@@ -173,7 +173,7 @@ void pagefile::printNode(node page)
 	cout<<"___________________________________________"<<endl;
 	cout<<"page num ----- "<<page.pageNum<<endl;
 	cout<<"is LeafNode ----- "<<page.leafNode<<endl;
-	cout<<"num of tuples ----- "<<page.leafNode<<endl;
+	cout<<"num of tuples ----- "<<page.numTuples<<endl;
 
 
 	cout<<"KEYS -----"<<endl;

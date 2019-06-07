@@ -39,7 +39,7 @@ void btree::insert(record rec)
 	while(!pageFile.isLeafNode(currNode.pageNum))
 	{
 		nextPage = getNextPage(rec.empID, currNode);
-		currNode =  pageFile.read(nextPage);
+		currNode = pageFile.read(nextPage);
 		traversalPages.push(currNode.pageNum);
 
 	}
@@ -47,16 +47,20 @@ void btree::insert(record rec)
 	bool complete = false;
 	node traversePage = pageFile.nodeConstructor(0);
 	//note the values in traverse page are garbo to start
-	int keyToAdd= rec.empID;
-	int parentPage =  traversalPages.top();
+	int keyToAdd = rec.empID;
+	int parentPage = traversalPages.top();
 	traversalPages.pop();
 	vector<int> splitPages;
 	while(!complete)
 	{
 		if(currNode.numTuples >= MAX_NUM_KEYS)
 		{
+			//this is confusing bc split pages is used to put in the val and also reutrn val
+			if(currNode.leafNode) {
+				splitPages.push_back(recordID);
+			}
 			splitPages = splitNode(currNode, keyToAdd, 1, splitPages);
-			keyToAdd = splitPages[2];
+			// keyToAdd = splitPages[2];
 
 			//there's no parent node we must create
 			if(traversalPages.empty())
@@ -72,12 +76,14 @@ void btree::insert(record rec)
 				newParentPage = insertValPage(splitPages[2], splitPages[0],splitPages[1], newParentPage);
 				pageFile.write(parentPageID, newParentPage);
 				pageFile.setRootNode(newParentPage.pageNum);
+				pageFile.printNode(newParentPage);
 				complete = true;
 			}
 			else
 			{
 				//TODO: actually implement for multiple levels
-				cout<<"we r here"<<endl;
+				//uhh so I think what I'm doing here is iterating, so that if its passing smt up, it'll insert next round
+				cout<<"WE R HERE ***********************"<<endl;
 				currNode = pageFile.read(traversalPages.top());
 				traversalPages.pop();
 			}
@@ -99,7 +105,13 @@ void btree::insert(record rec)
 			}
 			else
 			{
-				insertValPage(keyToAdd, splitPages[0], splitPages[1], currNode);
+				cout<<"KEY TO ADD: "<<splitPages[2]<<endl;
+				cout<<"LPage: "<<splitPages[0]<<endl;
+				cout<<"RPage: "<<splitPages[1]<<endl;
+
+				currNode = insertValPage(splitPages[2], splitPages[0], splitPages[1], currNode);
+				pageFile.write(currNode.pageNum, currNode);
+				pageFile.printNode(currNode);
 			}
 			complete = true;
 		}
@@ -110,6 +122,90 @@ void btree::insert(record rec)
 	return;
 
 }
+
+
+
+vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pastPages)
+{
+	vector<int> returnPages;
+
+	int pageNumL = currNode.pageNum;
+	//create new page for split node
+	int pageNumR = pageFile.getTotalPages();
+	//incr total num of pages cuz we created another one
+	pageFile.incrPageHeaderNumPages();
+
+	returnPages.push_back(pageNumL);
+	returnPages.push_back(pageNumR);
+
+	node recPageL = currNode;
+	node recPageR = pageFile.nodeConstructor(pageNumR);
+
+	//physically split the nodes
+	for(int i=MAX_NUM_KEYS/2; i<MAX_NUM_KEYS; i++)
+	{
+		//displace second half of keys from L to first half of R
+		recPageR.keys[i-MAX_NUM_KEYS/2] = recPageL.keys[i];
+		recPageL.keys[i] = -1;
+
+		recPageR.pointers[i-MAX_NUM_KEYS/2] = recPageL.pointers[i];
+		recPageL.pointers[i] = -1;
+	}
+	//make sure you set the last pointer 
+	recPageR.pointers[MAX_NUM_KEYS-MAX_NUM_KEYS/2] =  recPageL.pointers[MAX_NUM_KEYS];
+
+	//change respective sizes of the nodes
+	recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
+	//if there are an even number of key, there will be one more right key than left key
+	recPageR.numTuples = (MAX_NUM_KEYS+1)/2;
+
+	//if there was a previous split make sure to put those pages and the last value in the right place
+	if(pastPages.size()!=0)
+	{	
+		cout<<"Last insert "<<endl;
+		if(key>recPageR.keys[MAX_NUM_KEYS/2-1])
+		{
+			cout<<"insert left "<<endl;
+			recPageL = insertVal(key, pastPages[0], recPageL);
+		}
+		else
+		{
+			cout<<"insert right "<<endl;
+			recPageR = insertVal(key, pastPages[0], recPageR);
+		}
+
+
+	}
+	//set page information
+	recPageL.pageNum = pageNumL;
+	recPageR.pageNum = pageNumR;
+
+	// TODO: FIX they cant all be leaf
+	recPageL.leafNode = true;
+	recPageR.leafNode = true;
+
+	
+	//set the next pointer to the next leaf node TODO: if it's a leaf node ONLY
+	recPageL.pointers[MAX_NUM_KEYS/2+1] = pageNumR;
+
+	//leftmost (0) key is the key we're pushing up 
+	returnPages[2] = recPageR.keys[0];
+
+	//write the files in their respective places
+	pageFile.write(pageNumL, recPageL);
+	pageFile.write(pageNumR, recPageR);
+
+	cout<<"CREATED L: "<<pageNumL<<endl;
+	pageFile.printNode(recPageL);
+	cout<<"CREATED R: "<<pageNumR<<endl;
+	pageFile.printNode(recPageR);
+
+
+
+	return returnPages;
+
+}
+
 
 node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 {
@@ -156,83 +252,6 @@ node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 
 }
 
-
-vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pastPages)
-{
-	vector<int> returnPages;
-
-	int pageNumL = currNode.pageNum;
-	//create new page for split node
-	int pageNumR = pageFile.getTotalPages();
-	//incr total num of pages cuz we created another one
-	pageFile.incrPageHeaderNumPages();
-
-	returnPages.push_back(pageNumL);
-	returnPages.push_back(pageNumR);
-
-	node recPageL = currNode;
-	node recPageR = pageFile.nodeConstructor(pageNumR);
-
-	//physically split the nodes
-	for(int i=MAX_NUM_KEYS/2; i<MAX_NUM_KEYS; i++)
-	{
-		//displace second half of keys from L to first half of R
-		recPageR.keys[i-MAX_NUM_KEYS/2] = recPageL.keys[i];
-		recPageL.keys[i] = -1;
-
-		recPageR.pointers[i-MAX_NUM_KEYS/2] = recPageL.pointers[i];
-		recPageL.pointers[i] = -1;
-	}
-	//make sure you set the last pointer 
-	recPageR.pointers[MAX_NUM_KEYS] =  recPageL.pointers[MAX_NUM_KEYS];
-
-	//if there was a previous split make sure to put those pages and the last value in the right place
-	if(pastPages.size()!=0)
-	{
-		if(pastPages[2]<recPageR.keys[0])
-		{
-			insertValPage(pastPages[2], pastPages[0], pastPages[1], recPageL);
-		}
-		else
-		{
-			insertValPage(pastPages[2], pastPages[0], pastPages[1], recPageR);
-		}
-
-
-	}
-	//set page information
-	recPageL.pageNum = pageNumL;
-	recPageR.pageNum = pageNumR;
-
-	// TODO: FIX they cant all be leaf
-	recPageL.leafNode = true;
-	recPageR.leafNode = true;
-
-	recPageL.numTuples = MAX_NUM_KEYS/2;
-	recPageR.numTuples = MAX_NUM_KEYS/2 + (MAX_NUM_KEYS%2);
-
-	//set the next pointer to the next leaf node TODO: if it's a leaf node ONLY
-	recPageL.pointers[MAX_NUM_KEYS/2+1] = pageNumR;
-
-	//leftmost (0) key is the key we're pushing up 
-	returnPages[2] = recPageR.keys[0];
-
-	//write the files in their respective places
-	pageFile.write(pageNumL, recPageL);
-	pageFile.write(pageNumR, recPageR);
-
-	cout<<"CREATED L: "<<pageNumL<<endl;
-	pageFile.printNode(recPageL);
-	cout<<"CREATED R: "<<pageNumR<<endl;
-	pageFile.printNode(recPageR);
-
-
-
-	return returnPages;
-
-}
-
-
 node btree::insertVal(int key, int recID, node pageNode)
 {
 	if(pageNode.numTuples >=  MAX_NUM_KEYS)
@@ -269,6 +288,7 @@ node btree::insertVal(int key, int recID, node pageNode)
 
 	//TODO:increment number of records
 	pageNode.numTuples+=1;
+
 
 	return pageNode;
 
