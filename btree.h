@@ -21,7 +21,7 @@ class btree
 		node insertValPage(int key, int leftPage, int rightPage, node pageNode);
 		int  getNextPage(int key, node currNode);
 		int searchValue(int key, node currNode);
-		vector<int>  splitNode(node currNode, int key, bool isLeaf, vector<int> pastPages);
+		vector<int>  splitNode(node currNode, bool isLeaf, vector<int> pastPages);
 		void readInCSV(const char* filename);
 
 };

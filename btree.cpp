@@ -55,12 +55,15 @@ void btree::insert(record rec)
 	{
 		if(currNode.numTuples >= MAX_NUM_KEYS)
 		{
-			//this is confusing bc split pages is used to put in the val and also reutrn val
 			if(currNode.leafNode) {
+				splitPages.push_back(keyToAdd);
 				splitPages.push_back(recordID);
+				splitPages = splitNode(currNode, 1, splitPages);
 			}
-			splitPages = splitNode(currNode, keyToAdd, 1, splitPages);
-			// keyToAdd = splitPages[2];
+			else{
+				splitPages = splitNode(currNode, 0, splitPages);
+			}
+			
 
 			//there's no parent node we must create
 			if(traversalPages.empty())
@@ -125,13 +128,13 @@ void btree::insert(record rec)
 
 
 
-vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pastPages)
+vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 {
+	//return pages: LPageID, RPageID, key
 	vector<int> returnPages;
 
 	int tempKeys[MAX_NUM_KEYS+1];
 	int tempPointers[MAX_NUM_KEYS+2];
-
 
 	int pageNumL = currNode.pageNum;
 	//create new page for split node
@@ -145,114 +148,153 @@ vector<int> btree::splitNode(node currNode, int key, bool isLeaf, vector<int> pa
 	node recPageL = currNode;
 	node recPageR = pageFile.nodeConstructor(pageNumR);
 
-	// case: leaf node where key[i] = ptr[i] 
-	if(isLeaf){
-		int tempCounter = 0; 
-
-		// write key/pointers to temp array
-		for (int i=0; i<MAX_NUM_KEYS; i++){
-			
-			if(currNode.keys[i]<key){
-				tempKeys[tempCounter] = currNode.keys[i];
-				tempPointers[tempCounter] = currNode.pointers[i];
-				tempCounter++;
-			} 
-			else{
-				tempKeys[i] = key;
-				tempPointers[i] = pastPages[0];
-			}
-		}
-
-		// split temp array into two nodes
-		for (int i = 0; i < MAX_NUM_KEYS; i++) {
-			if (i < MAX_NUM_KEYS / 2) {
-				recPageL.keys[i] = tempKeys[i];
-				recPageL.pointers[i] = tempPointers[i];
-			}
-			else {
-				recPageR.keys[i - MAX_NUM_KEYS / 2] = tempKeys[i];
-				recPageR.pointers[i - MAX_NUM_KEYS / 2] = pastPages[1];
-			}
-		}
-	}
-
-	// case: internal node where key[i] = ptr[i + 1]
-	else
-	{
-		int tempCounter = 0; 
-
-		// write key/pointers to temp array
-		for (int i=0; i<MAX_NUM_KEYS; i++){
-			
-			if(currNode.keys[i]<key){
-				tempKeys[tempCounter] = currNode.keys[i];
-				tempPointers[tempCounter] = currNode.pointers[i];
-				tempCounter++;
-			} 
-			else{
-				tempKeys[i] = key;
-				tempPointers[i] = currNode.pointers[i];
-			}
-		}
-		tempPointers[tempCounter] = currNode.pointers[i];
-
-		// split temp array into two nodes
-		for (int i = 0; i < MAX_NUM_KEYS; i++) {
-			if (i < MAX_NUM_KEYS / 2) {
-				recPageL.keys[i] = tempKeys[i];
-				recPageL.pointers[i] = tempPointers[i];
-			}
-			else {
-				recPageR.keys[i - MAX_NUM_KEYS / 2] = tempKeys[i];
-				recPageR.pointers[i - MAX_NUM_KEYS / 2] = tempPointers[i];
-			}
-		}
-	}
-	
-	//make sure you set the last pointer 
-	recPageR.pointers[MAX_NUM_KEYS-MAX_NUM_KEYS/2] =  recPageL.pointers[MAX_NUM_KEYS];
-
-	//change respective sizes of the nodes
-	recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
-	//if there are an even number of key, there will be one more right key than left key
-	recPageR.numTuples = (MAX_NUM_KEYS+1)/2;
-
-	//if there was a previous split make sure to put those pages and the last value in the right place
-	if(pastPages.size()!=0)
-	{	
-		cout<<"Last insert "<<endl;
-		if(key>recPageR.keys[MAX_NUM_KEYS/2-1])
-		{
-			cout<<"insert left "<<endl;
-			recPageL = insertVal(key, pastPages[0], recPageL);
-		}
-		else
-		{
-			cout<<"insert right "<<endl;
-			recPageR = insertVal(key, pastPages[0], recPageR);
-		}
-
-
-	}
 	//set page information
 	recPageL.pageNum = pageNumL;
 	recPageR.pageNum = pageNumR;
 
-	// TODO: FIX they cant all be leaf
-	recPageL.leafNode = true;
-	recPageR.leafNode = true;
+	// CASE: leaf node where key[i] = ptr[i] 
+	//pastpages: 0-key, 1-recordID
+	if(isLeaf)
+	{
+		//to write everything to the same array
+		int tempCounter = 0;
+        int i=0;
+        bool valObtained = false;
+        while(tempCounter<MAX_NUM_KEYS+1)
+		{	
+			if((currNode.keys[i]<pastPages[0] || valObtained) && i<MAX_NUM_KEYS){
+				tempKeys[tempCounter] = currNode.keys[i];
+				tempPointers[tempCounter] = currNode.pointers[i];
+				i++;
+			} 
+			else{
+				tempKeys[tempCounter] = pastPages[0];
+				tempPointers[tempCounter] = pastPages[1];
+				valObtained = true;
+			    
+			}
+			tempCounter++;
+		}
 
+		// split temp array into two nodes
+		for (int i = 0; i < MAX_NUM_KEYS+1; i++) 
+		{
+			if (i < (MAX_NUM_KEYS+1) / 2) {
+				recPageL.keys[i] = tempKeys[i];
+				recPageL.pointers[i] = tempPointers[i];
+				// cout<<"\n"<<i<<" "<<tempPointers[i]<<endl;
+			}
+			else {
+
+				recPageR.keys[i - (MAX_NUM_KEYS+1) / 2] = tempKeys[i];
+				recPageR.pointers[i -(MAX_NUM_KEYS+1) / 2] = tempPointers[i];
+				//clean left/currNode
+				if(i<MAX_NUM_KEYS){
+					recPageL.keys[i] = -1;
+				}
+				recPageL.pointers[i] = -1;
+				
+			}
+		}
+		
+		//make sure you set the last pointer 
+		recPageL.pointers[MAX_NUM_KEYS] =  recPageR.pageNum;
+		recPageR.pointers[MAX_NUM_KEYS] =  currNode.pointers[MAX_NUM_KEYS];
+
+		//making some leaves
+		recPageL.leafNode = true;
+		recPageR.leafNode = true;
+
+		cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
+
+		//change respective sizes of the nodes
+		//if odd
+		if(MAX_NUM_KEYS%2)
+		{
+			recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
+			recPageR.numTuples = (MAX_NUM_KEYS+1)/2;
+		}
+		//if even
+		else
+		{
+			recPageL.numTuples = (MAX_NUM_KEYS)/2;
+			recPageR.numTuples = (MAX_NUM_KEYS)/2+1;
+		}
+
+		//leftmost (0) key of right page is the key we're pushing up 
+		cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
+
+		returnPages[2] = recPageR.keys[0];
+		
+	}
+
+	// CASE: internal node where key[i] = ptr[i + 1]
+	//pastpages: 0-lPage, 1-rPage, 2-key
+	else
+	{
+		//to write everything to the same array
+		int tempCounter = 0;
+        int i=0;
+        bool valObtained = false;
+        tempPointers[0] = currNode.pointers[0];
+        while(tempCounter<MAX_NUM_KEYS+1)
+		{	
+			if((currNode.keys[i]<pastPages[2] || valObtained) && i<MAX_NUM_KEYS){
+				tempKeys[tempCounter] = currNode.keys[i];
+				tempPointers[tempCounter+1] = currNode.pointers[i+1];
+				i++;
+			}
+			else{
+				tempKeys[tempCounter] = pastPages[2];
+				//we only need to write right page id, assuming left pageid stays the same
+				tempPointers[tempCounter+1] = pastPages[1];
+				valObtained = true;
+			}
+			tempCounter++;
+		}
+
+		// split temp array into two nodes
+		for (int i = 0; i < MAX_NUM_KEYS+1; i++) 
+		{
+			if (i < (MAX_NUM_KEYS+1) / 2) {
+				recPageL.keys[i] = tempKeys[i];
+				recPageL.pointers[i] = tempPointers[i];
+			}
+			else if(i==(MAX_NUM_KEYS+1) / 2){
+			    //this val gets pushed up
+			    returnPages[2] = tempKeys[i];
+			    recPageL.pointers[i] = tempPointers[i];
+			    recPageR.pointers[0] = tempPointers[i+1];
+			}
+			else {
+				recPageR.keys[i - (MAX_NUM_KEYS+1) / 2-1] = tempKeys[i];
+				recPageR.pointers[i - (MAX_NUM_KEYS+1) / 2] = tempPointers[i+1];
+			}
+		}
+
+		//NOT LEAVES
+		recPageL.leafNode = false;
+		recPageR.leafNode = false;
+
+		//change respective sizes of the nodes
+		if(MAX_NUM_KEYS%2)
+		{
+			recPageL.numTuples = (MAX_NUM_KEYS)/2;
+			recPageR.numTuples = (MAX_NUM_KEYS)/2;
+		}
+		else
+		{
+			recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
+			recPageR.numTuples = (MAX_NUM_KEYS+1)/2-1;
+		}
+	}
 	
-	//set the next pointer to the next leaf node TODO: if it's a leaf node ONLY
-	recPageL.pointers[MAX_NUM_KEYS/2+1] = pageNumR;
-
-	//leftmost (0) key is the key we're pushing up 
-	returnPages[2] = recPageR.keys[0];
+	cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
 
 	//write the files in their respective places
 	pageFile.write(pageNumL, recPageL);
 	pageFile.write(pageNumR, recPageR);
-
+	cout<<"\nPUSHED UP: "<<returnPages[2]<<endl;
 	cout<<"CREATED L: "<<pageNumL<<endl;
 	pageFile.printNode(recPageL);
 	cout<<"CREATED R: "<<pageNumR<<endl;
@@ -309,6 +351,7 @@ node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 	return pageNode;
 
 }
+
 
 node btree::insertVal(int key, int recID, node pageNode)
 {
