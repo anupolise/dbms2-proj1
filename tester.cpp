@@ -8,52 +8,160 @@ using namespace std;
 void test_recordfile();
 void test_simplePageFile();
 void test_singleNodeManipulations();
+void endlessTesting();
+void searchTesting(btree t);
+void bulkLoadTesting(btree t);
+void insertTesting(btree t);
+
 
 int main()
 {
-   //test_recordfile();
+   // test_recordfile();
    // test_simplePageFile();
    //test_singleNodeManipulations();
-   btree tree =  btree();
-   tree.readInCSV("smalldata");
-   const char* filen = "treefile.txt";
-   tree.pageFile.open(filen);
+
+   // btree tree =  btree();
+   // tree.readInCSV("smalldata");
+   // const char* filen = "treefile.txt";
+   // tree.pageFile.open(filen);
+
+   endlessTesting();
 
    // int root = tree.pageFile.getRootNode();
    // cout<<"FINAL TREE PRINT"<<endl;
    // cout<<"root: "<<root<<endl;
    // tree.pageFile.printNode(tree.pageFile.read(root));
 
-   tree.pageFile.close();
+   // tree.pageFile.close();
 
 }
 
 void endlessTesting(){
    int i=1;
 
+   btree tree =  btree();
+   // tree.readInCSV("smalldata");
+   const char* filen = "treefile.txt";
+   tree.pageFile.open(filen);
+
    while(i){
       int i = 0;
-      cout<<"Please choose a choice from the following, press 0 to quit: "<<endl;
-      cout<<"1 - Insert\n 2 - Bulk Load\n 3 - Search"<<endl;
+      cout<<"\nPlease choose a choice from the following, press 0 to quit: "<<endl;
+      cout<<"1 - Insert\n2 - Bulk Load\n3 - Search"<<endl;
       cin>>i;
       if(i==1)
       {
-         // insertTesting();
+         insertTesting(tree);
       }
       else if (i==2)
       {
-         // bulkLoadTesting();
+         bulkLoadTesting(tree);
       }
       else if(i==3)
       {
-         // searchTesting();
+         searchTesting(tree);
+      }
+      else if(i==0){
+         break;
       }
       else{
          cout<<"Sorry, that wasn't one of the choices, please try again.";
       }
    }
+
+   tree.pageFile.close();
+
    return;
 }
+
+void insertTesting(btree t){
+   record currRec;
+   int empID = 0;
+   string temp;
+
+   cout<<"INSERT: Enter an emp ID: ";
+   cin>>empID;
+   currRec.empID = empID;
+   
+   cout<<"\nEnter first name: ";
+   cin>>temp;
+   temp = temp.substr(0,14);
+   strcpy(currRec.fname, temp.c_str());
+   
+   cout<<"\nEnter last name: ";
+   cin>>temp;
+   temp = temp.substr(0,14);
+   strcpy(currRec.lname, temp.c_str());
+
+   cout<<"\nEnter ssn: ";
+   cin>>temp;
+   temp = temp.substr(0,12);
+   strcpy(currRec.ssn, temp.c_str());
+
+   cout<<"\nEnter username: ";
+   cin>>temp;
+   temp = temp.substr(0,14);
+   strcpy(currRec.username, temp.c_str());
+
+   cout<<"\nEnter password: ";
+   cin>>temp;
+   temp = temp.substr(0,14);
+   strcpy(currRec.password, temp.c_str());
+
+   t.insert(currRec);
+   return;
+}
+
+void searchTesting(btree t){
+   int empID;
+
+   cout<<"SEARCH: Enter an employee ID to search for: ";
+   cin>>empID;
+   cout<<endl;
+   int recID = t.search(empID);
+   if(recID == -1)
+   {
+      cout<<"Employee ID not found";
+      return;
+   }
+
+   t.recFile.open(t.recordfileName);
+   char* buf = (char*)malloc(sizeof(record));
+   memset(buf, 0, t.recFile.RECORD_SIZE);
+   record rec = record();
+   t.recFile.read(recID, buf);
+
+   //this code is here in case later I want to print things that aren't ugly
+   record* rec_ptr = &rec;
+   memset(rec_ptr, 0, sizeof(record));
+
+   memcpy((char*)&rec, buf, sizeof(record));
+   cout<<"\nSEARCH RESULTS"<<endl;
+   cout<<"Employee ID: "<<rec.empID<<endl;
+   cout<<"Name: "<<rec.fname<<" "<<rec.lname<<endl;
+   cout<<"SSN: "<<rec.ssn<<endl;
+   cout<<"Username and password: "<<rec.username<<" "<<rec.password<<endl;
+
+
+   //print value in buffer
+   // for(int i=0;i<sizeof(record);i++){
+   //    printf("%c ",buf[i]);
+   // }
+   t.recFile.close();
+   return;
+
+}
+
+void bulkLoadTesting(btree t){
+   string fileName;
+   cout<<"BULK LOAD: Enter a file name to bulk load: ";
+   cin>>fileName;
+   cout<<endl;
+   const char* fileN = fileName.c_str();
+   t.readInCSV(fileN);
+   return;
+}
+
 void test_singleNodeManipulations()
 {
    pagefile p;
@@ -180,7 +288,7 @@ void test_recordfile()
    int ret = r.open(filename);
    cout<<"Debug Open: "<<ret<<endl;
 
-    // r.readInCSV(test);
+    r.readInCSV("smalldata");
 
    memset(buf, 0, r.RECORD_SIZE);
 
@@ -195,7 +303,7 @@ void test_recordfile()
          printf("%c ",buf[i]);
       }
 
-   cout<<"\n END READ------:"<<endl;
+   cout<<"\nEND READ------:"<<endl;
 
    // record rec1 = record();
    record* rec_ptr = &rec;

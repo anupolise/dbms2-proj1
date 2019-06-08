@@ -85,12 +85,12 @@ void recordfile::readInCSV(const char* filename)
 		record rec = record();
 		memcpy((char*)&rec, buffer, sizeof(record));
 
-		printf("Copied byte array is:\n");
+		// printf("Copied byte array is:\n");
 
-		//print value in buffer
-		for(int i=0;i<sizeof(record);i++){
-			printf("%c ",buffer[i]);
-		}
+		// //print value in buffer
+		// for(int i=0;i<sizeof(record);i++){
+		// 	printf("%c ",buffer[i]);
+		// }
 		
 		printf("\n");
 
@@ -234,7 +234,8 @@ int recordfile::open(const char* filename)
 		fseek(pFile, 0, SEEK_SET);
    	 	fgets(headerbuff, HEADER_SIZE, pFile);
     	int numRecs = atoi(headerbuff);
-    	cout<<"Number of recs  -----  " <<numRecs<<endl;
+    	//debug message
+    	// cout<<"Number of recs  -----  " <<numRecs<<endl;
 	} 
 	//if file doesnt exist 
 	else {

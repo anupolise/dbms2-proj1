@@ -8,10 +8,11 @@
 class btree
 {
 	private:
-		const char* pagefileName = "treefile.txt";;
-		const char* recordfileName = "recordfile.txt";	
+		
 
 	public:
+		const char* pagefileName = "treefile.txt";
+		const char* recordfileName = "recordfile.txt";	
 		recordfile recFile;
 		pagefile pageFile;
 		btree();

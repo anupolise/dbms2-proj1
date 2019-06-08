@@ -488,7 +488,6 @@ node btree::insertVal(int key, int recID, node pageNode)
 int btree::search(int key)
 {
 	node root = pageFile.read(pageFile.getRootNode());
-	// vector<int> traver
 	int nextPage = 0;
 	while(!pageFile.isLeafNode(root.pageNum))
 	{
@@ -530,7 +529,6 @@ int btree::searchValue(int key, node currNode)
 
 void btree::readInCSV(const char* filename)
 {
-	// TODO: complete parsing this function
  	// FILE * csvFile = fopen(filename, "rb+");
  	std::ifstream  inputF(filename);
 	std::string line;
