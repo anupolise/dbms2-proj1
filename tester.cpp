@@ -15,7 +15,7 @@ int main()
    // test_simplePageFile();
    //test_singleNodeManipulations();
    btree tree =  btree();
-   tree.readInCSV("test");
+   tree.readInCSV("smalldata");
    const char* filen = "treefile.txt";
    tree.pageFile.open(filen);
 
@@ -24,9 +24,35 @@ int main()
    // cout<<"root: "<<root<<endl;
    // tree.pageFile.printNode(tree.pageFile.read(root));
 
-   //tree.pageFile.close();
+   tree.pageFile.close();
 
+}
 
+void endlessTesting(){
+   int i=1;
+
+   while(i){
+      int i = 0;
+      cout<<"Please choose a choice from the following, press 0 to quit: "<<endl;
+      cout<<"1 - Insert\n 2 - Bulk Load\n 3 - Search"<<endl;
+      cin>>i;
+      if(i==1)
+      {
+         // insertTesting();
+      }
+      else if (i==2)
+      {
+         // bulkLoadTesting();
+      }
+      else if(i==3)
+      {
+         // searchTesting();
+      }
+      else{
+         cout<<"Sorry, that wasn't one of the choices, please try again.";
+      }
+   }
+   return;
 }
 void test_singleNodeManipulations()
 {

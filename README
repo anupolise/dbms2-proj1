@@ -2,6 +2,13 @@ README
 
 Anu Polisetty 8916967
 
+TODO: 
+commandline interface
+fix the comma thing
+add buffer
+look at segfaults
+timing functions?
+
 Notes: 
 - I'm still debugging some things so you might get a lot of garbage output
 - I haven't been testing with the big data file. I wrote a file called "test" which I've been using so I can use hardcoded values to access different things

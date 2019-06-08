@@ -4,8 +4,110 @@
 
 #include "recordfile.h"
 
-
 void recordfile::readInCSV(const char* filename)
+{
+	// TODO: complete parsing this function
+ 	// FILE * csvFile = fopen(filename, "rb+");
+ 	std::ifstream  inputF(filename);
+	std::string line;
+	int numOfCommas = 0;
+	std:string temp;
+
+	record currRec = record();
+	while(getline(inputF,line))
+	{
+		line += ",";
+		//concatenates strings between commas in the line
+		for(int i=0; i<line.length(); i++)
+		{
+			if(line[i] == ',')
+			{
+				numOfCommas++;
+
+				//puts whatever parsed value in the struct
+					switch(numOfCommas)
+					{
+						case 1:
+							//empID
+							currRec.empID = std::stoi(temp);
+							break;
+						case 2:
+							//fname
+							temp = temp.substr(0,14);
+							strcpy(currRec.fname, temp.c_str());
+							break;
+						case 3:
+							//lname
+							temp = temp.substr(0,14);
+							strcpy(currRec.lname, temp.c_str());
+
+							break;
+						case 4:
+							//ssn
+							temp = temp.substr(0,12);
+							strcpy(currRec.ssn, temp.c_str());
+
+							break;
+						case 5:
+							//username
+							temp = temp.substr(0,14);
+							strcpy(currRec.username, temp.c_str());
+							break;
+						case 6:
+							//pswd
+							temp = temp.substr(0,14);
+							strcpy(currRec.password, temp.c_str());
+							break;
+						default:
+							break;
+
+					}
+
+				temp = "";
+
+
+			} 
+			else
+			{
+				temp+=line[i];
+			}
+
+		}
+
+		char* buffer =  (char*)malloc(sizeof(record));
+		memset(buffer, 0, sizeof(record));
+		memcpy(buffer, &currRec, sizeof(currRec));
+		// printf("%s", buffer);
+
+		append(buffer);
+
+		//SANITY CHECK
+		record rec = record();
+		memcpy((char*)&rec, buffer, sizeof(record));
+
+		printf("Copied byte array is:\n");
+
+		//print value in buffer
+		for(int i=0;i<sizeof(record);i++){
+			printf("%c ",buffer[i]);
+		}
+		
+		printf("\n");
+
+		//reset info	
+		temp = "";
+		numOfCommas = 0;
+
+	}
+
+	inputF.close();
+	// fclose(pFile);
+	return;
+}
+
+
+//this read in was for the other csv that was really long
+void recordfile::readInCSV2(const char* filename)
 {
 	// TODO: complete parsing this function
  	// FILE * csvFile = fopen(filename, "rb+");
@@ -114,7 +216,7 @@ int recordfile::open(const char* filename)
 
 	pFile = fopen(filename, "ab+");
 	if(!pFile){
-		cout<<"here"<<endl;
+		cout<<"recordfile failed to open"<<endl;
 		return -1;
 	}
 

@@ -61,7 +61,6 @@ void btree::insert(record rec)
 				splitPages.push_back(recordID);
 				splitPages = splitNode(currNode, 1, splitPages);
 				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- LEAFFF"<<endl;
-				cout<<"split pages size" << splitPages.size();
 				for(int i =0; i< splitPages.size(); i++)
 				{
 					cout<<splitPages[i]<<" ";
@@ -96,9 +95,7 @@ void btree::insert(record rec)
 				}
 				else
 				{
-					//TODO: actually implement for multiple levels
 					//uhh so I think what I'm doing here is iterating, so that if its passing smt up, it'll insert next round
-					cout<<"WE R HERE ***********************"<<endl;
 					currNode = pageFile.read(traversalPages.top());
 					traversalPages.pop();
 				}
@@ -558,29 +555,29 @@ void btree::readInCSV(const char* filename)
 							//empID
 							currRec.empID = std::stoi(temp);
 							break;
-						case 3:
+						case 2:
 							//fname
 							temp = temp.substr(0,14);
 							strcpy(currRec.fname, temp.c_str());
 							break;
-						case 5:
+						case 3:
 							//lname
 							temp = temp.substr(0,14);
 							strcpy(currRec.lname, temp.c_str());
 
 							break;
-						case 28:
+						case 4:
 							//ssn
 							temp = temp.substr(0,12);
 							strcpy(currRec.ssn, temp.c_str());
 
 							break;
-						case 36:
+						case 5:
 							//username
 							temp = temp.substr(0,14);
 							strcpy(currRec.username, temp.c_str());
 							break;
-						case 37:
+						case 6:
 							//pswd
 							temp = temp.substr(0,14);
 							strcpy(currRec.password, temp.c_str());

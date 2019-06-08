@@ -29,11 +29,13 @@ class recordfile
 		
 		static const int RECORD_SIZE =  sizeof(record);
 		void readInCSV(const char* filename);
+		void readInCSV2(const char* filename);
 		int open(const char* filename);
 		int close();
         void read(int recordID, char* buffer);
         int append(char* buffer);
         int write(int recordID, const char* buffer);
+
 
 };
 #endif
