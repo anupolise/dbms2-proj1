@@ -13,7 +13,7 @@ int main()
 {
    //test_recordfile();
    // test_simplePageFile();
-    // test_singleNodeManipulations();
+   //test_singleNodeManipulations();
    btree tree =  btree();
    tree.readInCSV("test");
    const char* filen = "treefile.txt";
@@ -24,7 +24,7 @@ int main()
    // cout<<"root: "<<root<<endl;
    // tree.pageFile.printNode(tree.pageFile.read(root));
 
-   tree.pageFile.close();
+   //tree.pageFile.close();
 
 
 }
@@ -62,13 +62,56 @@ void test_singleNodeManipulations()
    tester.pointers[0] = 1;
    tester.pointers[1] = 2;
    tester.pointers[2] = 3;
-   tester.pointers[3] = -1;
+   tester.pointers[3] = 4;
    tester.pointers[4] = -1;
 
    cout<<"original node:  "<<endl;
    p.printNode(tester);
-   cout<<"PAGE INSERTION page 10,111,222:  "<<endl;
+   cout<<"PAGE INSERTION page 2,111,222:  "<<endl;
    p.printNode(tree.insertValPage(2,111, 222, tester));
+
+   cout<<"PAGE INSERTION page 10,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(10,111, 222, tester));
+
+   cout<<"PAGE INSERTION page 45,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(45,111, 222, tester));
+
+   tester.keys[0] = 4;
+   tester.keys[1] = 15;
+   tester.keys[2] = -1;
+   tester.keys[3] = -1;
+
+   tester.pointers[0] = 1;
+   tester.pointers[1] = 2;
+   tester.pointers[2] = 3;
+   tester.pointers[3] = -1;
+   tester.pointers[4] = -1;
+
+   cout<<"PAGE INSERTION page 2,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(2,111, 222, tester));
+
+   cout<<"PAGE INSERTION page 10,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(10,111, 222, tester));
+
+   cout<<"PAGE INSERTION page 45,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(45,111, 222, tester));
+
+   tester.keys[0] = 4;
+   tester.keys[1] = -1;
+   tester.keys[2] = -1;
+   tester.keys[3] = -1;
+
+   tester.pointers[0] = 1;
+   tester.pointers[1] = 2;
+   tester.pointers[2] = -1;
+   tester.pointers[3] = -1;
+   tester.pointers[4] = -1;
+
+   cout<<"PAGE INSERTION page 2,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(2,111, 222, tester));
+
+   cout<<"PAGE INSERTION page 10,111,222:  "<<endl;
+   p.printNode(tree.insertValPage(10,111, 222, tester));
 
 
 }

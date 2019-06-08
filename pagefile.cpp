@@ -51,7 +51,9 @@ int pagefile::close()
     return 0;
 }
 
-
+// node pagefile::nodeAccessor(int pageNum){
+// 	return nodeConstructor(-100);
+// }
 
 int pagefile::getTotalRecords(int pageID){
 	node n = node();

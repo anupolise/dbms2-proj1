@@ -55,41 +55,54 @@ void btree::insert(record rec)
 	{
 		if(currNode.numTuples >= MAX_NUM_KEYS)
 		{
-			if(currNode.leafNode) {
+			if(currNode.leafNode) 
+			{
 				splitPages.push_back(keyToAdd);
 				splitPages.push_back(recordID);
 				splitPages = splitNode(currNode, 1, splitPages);
-			}
-			else{
-				splitPages = splitNode(currNode, 0, splitPages);
-			}
-			
-
-			//there's no parent node we must create
-			if(traversalPages.empty())
-			{
-				cout<<"parent node CREATED :  "<<pageFile.getTotalPages()<<endl;
-
-				//create new root page and incr total pages
-				int parentPageID = pageFile.getTotalPages();
-				node newParentPage = pageFile.nodeConstructor(parentPageID);
-				newParentPage.leafNode = 0;
-				pageFile.incrPageHeaderNumPages();
-
-				newParentPage = insertValPage(splitPages[2], splitPages[0],splitPages[1], newParentPage);
-				pageFile.write(parentPageID, newParentPage);
-				pageFile.setRootNode(newParentPage.pageNum);
-				pageFile.printNode(newParentPage);
-				complete = true;
+				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- LEAFFF"<<endl;
+				cout<<"split pages size" << splitPages.size();
+				for(int i =0; i< splitPages.size(); i++)
+				{
+					cout<<splitPages[i]<<" ";
+				}
 			}
 			else
 			{
-				//TODO: actually implement for multiple levels
-				//uhh so I think what I'm doing here is iterating, so that if its passing smt up, it'll insert next round
-				cout<<"WE R HERE ***********************"<<endl;
-				currNode = pageFile.read(traversalPages.top());
-				traversalPages.pop();
+				splitPages = splitNode(currNode, 0, splitPages);
+				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- NODEE"<<endl;
+				for(int i =0; i< splitPages.size(); i++)
+				{
+					cout<<splitPages[i]<<" ";
+				}
 			}
+
+				//there's no parent node we must create
+				if(traversalPages.empty())
+				{
+					cout<<"parent node CREATED :  "<<pageFile.getTotalPages()<<endl;
+
+					//create new root page and incr total pages
+					int parentPageID = pageFile.getTotalPages();
+					node newParentPage = pageFile.nodeConstructor(parentPageID);
+					newParentPage.leafNode = 0;
+					pageFile.incrPageHeaderNumPages();
+
+					newParentPage = insertValPage(splitPages[2], splitPages[0],splitPages[1], newParentPage);
+					pageFile.write(parentPageID, newParentPage);
+					pageFile.setRootNode(newParentPage.pageNum);
+					pageFile.printNode(newParentPage);
+					complete = true;
+				}
+				else
+				{
+					//TODO: actually implement for multiple levels
+					//uhh so I think what I'm doing here is iterating, so that if its passing smt up, it'll insert next round
+					cout<<"WE R HERE ***********************"<<endl;
+					currNode = pageFile.read(traversalPages.top());
+					traversalPages.pop();
+				}
+			
 		}
 		else
 		{
@@ -130,6 +143,12 @@ void btree::insert(record rec)
 
 vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 {
+	cout<<"\nPRINT PAST PAGES **********+++++++++++++++++++++++"<<endl;
+	for(int i =0; i< pastPages.size(); i++)
+	{
+		cout<<pastPages[i]<<" ";
+	}
+
 	//return pages: LPageID, RPageID, key
 	vector<int> returnPages;
 
@@ -144,7 +163,7 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 
 	returnPages.push_back(pageNumL);
 	returnPages.push_back(pageNumR);
-
+	
 	node recPageL = currNode;
 	node recPageR = pageFile.nodeConstructor(pageNumR);
 
@@ -205,7 +224,6 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 		recPageL.leafNode = true;
 		recPageR.leafNode = true;
 
-		cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
 
 		//change respective sizes of the nodes
 		//if odd
@@ -222,9 +240,8 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 		}
 
 		//leftmost (0) key of right page is the key we're pushing up 
-		cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
 
-		returnPages[2] = recPageR.keys[0];
+		returnPages.push_back(recPageR.keys[0]);
 		
 	}
 
@@ -232,6 +249,9 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 	//pastpages: 0-lPage, 1-rPage, 2-key
 	else
 	{
+		// cout<<"\nKEY WE R PUSHING BEGINNING   -      "<<pastPages[2]<<pastPages[0]<<pastPages[1]<<endl;
+		returnPages.push_back(0);
+		// cout<<"size of return pages"
 		//to write everything to the same array
 		int tempCounter = 0;
         int i=0;
@@ -253,6 +273,17 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 			tempCounter++;
 		}
 
+		// cout<<"\nKEYS ADN POITNERS"<<endl;
+		// for(int i =0; i<MAX_NUM_KEYS+1; i++)
+		// {
+		// 	cout<<tempKeys[i]<<" ";
+		// }
+		// cout<<"\nPOINTERS\n";
+		// for(int i =0; i<MAX_NUM_KEYS+2; i++)
+		// {
+		// 	cout<<tempPointers[i]<<" ";
+		// }
+
 		// split temp array into two nodes
 		for (int i = 0; i < MAX_NUM_KEYS+1; i++) 
 		{
@@ -263,12 +294,20 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 			else if(i==(MAX_NUM_KEYS+1) / 2){
 			    //this val gets pushed up
 			    returnPages[2] = tempKeys[i];
+
+			    //returnPages.push_back(tempKeys[i]);
+			    recPageL.keys[i] = -1;
 			    recPageL.pointers[i] = tempPointers[i];
 			    recPageR.pointers[0] = tempPointers[i+1];
 			}
 			else {
 				recPageR.keys[i - (MAX_NUM_KEYS+1) / 2-1] = tempKeys[i];
 				recPageR.pointers[i - (MAX_NUM_KEYS+1) / 2] = tempPointers[i+1];
+				//clean left/currNode
+				if(i<MAX_NUM_KEYS){
+					recPageL.keys[i] = -1;
+				}
+				recPageL.pointers[i] = -1;
 			}
 		}
 
@@ -277,20 +316,21 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 		recPageR.leafNode = false;
 
 		//change respective sizes of the nodes
+		//if odd
 		if(MAX_NUM_KEYS%2)
 		{
 			recPageL.numTuples = (MAX_NUM_KEYS)/2;
 			recPageR.numTuples = (MAX_NUM_KEYS)/2;
 		}
+		//if even
 		else
 		{
 			recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
 			recPageR.numTuples = (MAX_NUM_KEYS+1)/2-1;
 		}
+
 	}
 	
-	cout<<"HERE 3 "<<recPageL.pointers[0]<<endl;
-
 	//write the files in their respective places
 	pageFile.write(pageNumL, recPageL);
 	pageFile.write(pageNumR, recPageR);
@@ -301,11 +341,61 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 	pageFile.printNode(recPageR);
 
 
-
 	return returnPages;
 
 }
 
+
+// node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
+// {
+// 	if(pageNode.numTuples >=  MAX_NUM_KEYS)
+// 	{
+// 		cout<<"FULL"<<endl;
+// 		return pageNode;
+// 	}
+
+// 	bool replace = false;
+// 	int tempKey = 0;
+// 	int tempPtr = 0;
+// 	int nextKey = key;
+// 	int nextPtr = rightPage;
+// 	int holdPos = 0;
+// 	for(int i = 0; i<MAX_NUM_KEYS-1; i++)
+// 	{
+// 		if(replace && !(tempKey==-1 && tempPtr==-1))
+// 		{
+// 			nextKey = pageNode.keys[i];
+// 			nextPtr = pageNode.pointers[i+1];
+// 			pageNode.keys[i] = tempKey;
+// 			pageNode.pointers[i+1] = tempPtr;
+// 			tempKey = nextKey;
+// 			tempPtr = nextPtr;
+// 		}
+// 		else if((key<pageNode.keys[i] || pageNode.keys[i] == -1) && !replace)
+// 		{
+// 			replace = true;
+// 			holdPos = i;
+// 			tempKey = pageNode.keys[i];
+// 			tempPtr = pageNode.pointers[i+1];
+// 			pageNode.keys[i] = nextKey;
+// 			pageNode.pointers[i+1] = nextPtr;
+// 		}
+// 	}
+// 	if(!(tempKey==-1 && tempPtr==-1))
+// 	{
+// 		pageNode.keys[MAX_NUM_KEYS-1] = nextKey;
+// 		pageNode.pointers[MAX_NUM_KEYS] = nextPtr;
+// 	}
+	
+// 	//sanity check
+// 	// pageNode.pointers[holdPos] = leftPage;
+// 	// pageNode.pointers[holdPos +1] = rightPage;
+
+// 	pageNode.numTuples+=1;
+
+// 	return pageNode;
+
+// }
 
 node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 {
@@ -342,6 +432,8 @@ node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 			pageNode.pointers[i] = nextPtr;
 		}
 	}
+	pageNode.pointers[MAX_NUM_KEYS] = nextPtr;
+	
 	//sanity check
 	pageNode.pointers[holdPos] = leftPage;
 	pageNode.pointers[holdPos +1] = rightPage;
@@ -349,8 +441,9 @@ node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 	pageNode.numTuples+=1;
 
 	return pageNode;
-
 }
+
+
 
 
 node btree::insertVal(int key, int recID, node pageNode)

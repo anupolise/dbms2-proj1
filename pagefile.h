@@ -23,6 +23,8 @@ struct node{
 static const int FILE_HEADER_SIZE = sizeof(pagefileHeader);
 // static const int PAGE_SIZE = 1024;
 static const int PAGE_SIZE = sizeof(node);
+static const int BUFFER_SIZE = 10;
+static node buffer[10];
 
 
 
@@ -48,6 +50,7 @@ class pagefile
 		int getRootNode();
 		node nodeConstructor(int pageNum);
 		void printNode(node page);
+		node bufferAccessor(int pageNum);
 
 
 
