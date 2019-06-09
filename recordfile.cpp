@@ -235,6 +235,7 @@ int recordfile::open(const char* filename)
 		fseek(pFile, 0, SEEK_SET);
    	 	fgets(headerbuff, HEADER_SIZE, pFile);
     	int numRecs = atoi(headerbuff);
+
     	//debug message
     	// cout<<"Number of recs  -----  " <<numRecs<<endl;
 	} 
@@ -252,11 +253,13 @@ int recordfile::open(const char* filename)
 		// 	printf("%d\n ", (int)headerbuff);
 		// }
 
-		sprintf(headerbuff, "%d", 0);
+		// sprintf(headerbuff, "%d", 0);
 		// fseek(pFile, 0, SEEK_SET);
 		// fwrite(headerbuff,1, sizeof(headerbuff), pFile);
+		// fwrite(header, sizeof(int), 1, pFile);
 
-		fwrite(headerbuff, sizeof(int), 1, pFile);
+		int header = 0;
+		fprintf(pFile, "%d", header);
 	}
 	return 0;
 }
@@ -287,16 +290,18 @@ int recordfile::append(char* buffer)
 	}
 	//change header
 	char* headerbuff = (char*)malloc(HEADER_SIZE);
+	int header = 0;
 	fseek(pFile, 0, SEEK_SET);
     fgets(headerbuff, HEADER_SIZE, pFile);
 
     //get number of records in file and do math
-    int numRecs = atoi(headerbuff);
-    cout<<"insertion number: "<<numRecs<<endl;
-    int position = numRecs * RECORD_SIZE + HEADER_SIZE;
+    int* numRecs = (int*)headerbuff;
+    // int numRecs = atoi(headerbuff);
+    cout<<"insertion number: "<<*numRecs<<endl;
+    int position = *numRecs *RECORD_SIZE + HEADER_SIZE;
     numRecs++;
    
-	sprintf(headerbuff,"%d", numRecs);
+	sprintf(headerbuff,"%d", *numRecs);
 	fseek(pFile, 0, SEEK_SET);
 	fwrite(headerbuff, sizeof(headerbuff), 1, pFile);
 
@@ -313,7 +318,7 @@ int recordfile::append(char* buffer)
 
 	fwrite(buffer, sizeof(record), 1, pFile);
 
-	return numRecs-1;
+	return *numRecs-1;
 }
 
 
