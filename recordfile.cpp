@@ -295,7 +295,8 @@ int recordfile::append(char* buffer)
 	char* headerbuff = (char*)malloc(HEADER_SIZE);
 	int header = 0;
 	fseek(pFile, 0, SEEK_SET);
-    fgets(headerbuff, HEADER_SIZE, pFile);
+	fread(headerbuff, HEADER_SIZE, 1,pFile);
+    // fgets(headerbuff, HEADER_SIZE, pFile);
 
     //get number of records in file and do math
     int* numRecs = (int*)headerbuff;
@@ -307,7 +308,7 @@ int recordfile::append(char* buffer)
    	headerbuff = (char*)numRecs;
 	// sprintf(headerbuff,"%d", *numRecs);
 	fseek(pFile, 0, SEEK_SET);
-	fwrite((char*)headerbuff, sizeof(headerbuff), 1, pFile);
+	fwrite((char*)headerbuff, sizeof(HEADER_SIZE), 1, pFile);
 
 
 	//write record to the file
