@@ -254,12 +254,15 @@ int recordfile::open(const char* filename)
 		// }
 
 		// sprintf(headerbuff, "%d", 0);
-		// fseek(pFile, 0, SEEK_SET);
+		int temp = 0;
+		int* header = &temp;
+		fseek(pFile, 0, SEEK_SET);
+		// int header = 0;
 		// fwrite(headerbuff,1, sizeof(headerbuff), pFile);
-		// fwrite(header, sizeof(int), 1, pFile);
+		fwrite((char*)header, sizeof(int), 1, pFile);
 
-		int header = 0;
-		fprintf(pFile, "%d", header);
+		
+		// fprintf(pFile, "%d", header);
 	}
 	return 0;
 }
@@ -299,11 +302,12 @@ int recordfile::append(char* buffer)
     // int numRecs = atoi(headerbuff);
     cout<<"insertion number: "<<*numRecs<<endl;
     int position = *numRecs *RECORD_SIZE + HEADER_SIZE;
-    numRecs++;
-   
-	sprintf(headerbuff,"%d", *numRecs);
+    (*numRecs)++;
+   	
+   	headerbuff = (char*)numRecs;
+	// sprintf(headerbuff,"%d", *numRecs);
 	fseek(pFile, 0, SEEK_SET);
-	fwrite(headerbuff, sizeof(headerbuff), 1, pFile);
+	fwrite((char*)headerbuff, sizeof(headerbuff), 1, pFile);
 
 
 	//write record to the file
