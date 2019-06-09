@@ -3,9 +3,16 @@ README
 Anu Polisetty 8916967
 
 TODO: 
-commandline interface
-add buffer
+test different sized nodes
+add a better read me
+clean up comments
 timing functions?
+
+1) HOW TO RUN
+Make sure you **make clean** before creating a new tree (unless you want to add onto the old persistent b+ tree)
+make - this will compile all the neccessary components 
+
+
 
 Notes: 
 - I'm still debugging some things so you might get a lot of garbage output

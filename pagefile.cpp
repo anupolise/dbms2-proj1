@@ -9,6 +9,13 @@ int pagefile::open(const char* &filename)
 	char* headerbuff = (char*)malloc(sizeof(header));
 	memset(headerbuff, 0, sizeof(header));
 
+	for(int i=0; i<BUFFER_SIZE; i++)
+	{
+		//init with invalid page number
+		nodeBuffer[i] = nodeConstructor(-1);
+	}
+
+
 
 	errno = 0;
 	pFile = fopen(filename, "ab+");
@@ -47,13 +54,18 @@ int pagefile::open(const char* &filename)
 
 int pagefile::close()
 {
+	//write everything in the buffer back to  
+	for(int i =0; i<BUFFER_SIZE; i++)
+	{
+		if(nodeBuffer[i].pageNum!=-1)
+		{
+			writeToFile(nodeBuffer[i].pageNum, nodeBuffer[i]);
+		}
+	}
 	fclose(pFile);
     return 0;
 }
 
-// node pagefile::nodeAccessor(int pageNum){
-// 	return nodeConstructor(-100);
-// }
 
 int pagefile::getTotalRecords(int pageID){
 	node n = node();
@@ -77,12 +89,30 @@ int pagefile::isLeafNode(int pageID){
 
 node pagefile::read(int pageID)
 {
+	//first check buffer
+	for(int i=0; i<BUFFER_SIZE; i++)
+	{
+		if(nodeBuffer[i].pageNum == pageID)
+			return nodeBuffer[i];
+	}
+
+	cout<<"READ: putting "<<pageID<<" into the buffer."<<endl;
+	//if its not in the buffer
 	node n = node();
 	char* buffer =  (char*)malloc(PAGE_SIZE);
 	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;
 	fseek(pFile, position, SEEK_SET);
 	fread(buffer, PAGE_SIZE, 1,pFile);
 	memcpy((char*)&n, buffer, PAGE_SIZE);
+
+	//if theres someting in that spot in the buffer, write it to file
+	if(nodeBuffer[bufferCounter%10].pageNum!= -1) {
+		//white whatever is in the buffer back to file to make space
+		writeToFile(nodeBuffer[bufferCounter%10].pageNum, nodeBuffer[bufferCounter%10]);
+	}
+	nodeBuffer[bufferCounter%10] = n;
+	bufferCounter++;
+
 	return n;
 }
 
@@ -92,6 +122,34 @@ int pagefile::endPID()
 }
 
 void pagefile::write(int pageID, node page)
+{
+	//first check buffer
+	for(int i=0; i<BUFFER_SIZE; i++)
+	{
+		if(nodeBuffer[i].pageNum == pageID){
+			nodeBuffer[i] = page;
+			return;
+		}
+	}
+	cout<<"YO WHERE IS THE FILE"<<endl;
+	//if for some weird reason its not in buffer...
+	//actually idk fi we shoudl do this
+	writeToFile(pageID, page);
+	//hahha bad....
+	read(pageID);
+	for(int i=0; i<BUFFER_SIZE; i++)
+	{
+		if(nodeBuffer[i].pageNum == pageID){
+			cout<<"WRITE: putting "<<pageID<<" into the buffer."<<endl;
+
+			nodeBuffer[i] = page;
+			return;
+		}
+	}
+    return;
+}
+
+void pagefile::writeToFile(int pageID, node page)
 {
 	char* buffer =  (char*)malloc(PAGE_SIZE);
 	int position = pageID * PAGE_SIZE + FILE_HEADER_SIZE;

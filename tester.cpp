@@ -42,7 +42,7 @@ void endlessTesting(){
    btree tree =  btree();
    // tree.readInCSV("smalldata");
    const char* filen = "treefile.txt";
-   tree.pageFile.open(filen);
+   // tree.pageFile.open(filen);
 
    while(i){
       int i = 0;
@@ -70,6 +70,7 @@ void endlessTesting(){
    }
 
    tree.pageFile.close();
+   tree.recFile.close();
 
    return;
 }

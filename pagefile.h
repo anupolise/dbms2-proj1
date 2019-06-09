@@ -4,7 +4,7 @@
 #include <errno.h>
 
 
-static const int MAX_NUM_KEYS = 4;
+static const int MAX_NUM_KEYS = 200;
 
 struct pagefileHeader{
 	int pageRoot;
@@ -24,9 +24,8 @@ static const int FILE_HEADER_SIZE = sizeof(pagefileHeader);
 // static const int PAGE_SIZE = 1024;
 static const int PAGE_SIZE = sizeof(node);
 static const int BUFFER_SIZE = 10;
-static node buffer[10];
-
-
+static int bufferCounter = 0;
+static node nodeBuffer[BUFFER_SIZE];
 
 
 class pagefile
@@ -42,6 +41,7 @@ class pagefile
         node read(int pageID);
         int endPID();
         void write(int pageID, node page);
+        void writeToFile(int pageID, node page);
         int getTotalRecords(int pageID);
         int isLeafNode(int pageID);
         void incrPageHeaderNumPages();

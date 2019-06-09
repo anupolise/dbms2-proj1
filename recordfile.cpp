@@ -219,6 +219,7 @@ int recordfile::open(const char* filename)
 		cout<<"recordfile failed to open"<<endl;
 		return -1;
 	}
+	
 
 	//check if pFile has things in it
 	fseek(pFile, 0, SEEK_END);
@@ -255,7 +256,7 @@ int recordfile::open(const char* filename)
 		// fseek(pFile, 0, SEEK_SET);
 		// fwrite(headerbuff,1, sizeof(headerbuff), pFile);
 
-		fwrite(headerbuff, 1, sizeof(int), pFile);
+		fwrite(headerbuff, sizeof(int), 1, pFile);
 	}
 	return 0;
 }
@@ -297,7 +298,7 @@ int recordfile::append(char* buffer)
    
 	sprintf(headerbuff,"%d", numRecs);
 	fseek(pFile, 0, SEEK_SET);
-	fwrite(headerbuff,1, sizeof(headerbuff), pFile);
+	fwrite(headerbuff, sizeof(headerbuff), 1, pFile);
 
 
 	//write record to the file
@@ -310,7 +311,7 @@ int recordfile::append(char* buffer)
 	}
 
 
-	fwrite(buffer,1, sizeof(record), pFile);
+	fwrite(buffer, sizeof(record), 1, pFile);
 
 	return numRecs-1;
 }
@@ -323,6 +324,6 @@ int recordfile::write(int recordID, const char* buffer)
 	//write the buffer to file
 	int position = recordID * RECORD_SIZE + HEADER_SIZE;
 	fseek(pFile, position, SEEK_SET);
-	fwrite(buffer,1, sizeof(buffer), pFile);
+	fwrite(buffer, sizeof(buffer), 1, pFile);
 	return 0;
 }

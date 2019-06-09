@@ -13,12 +13,12 @@ btree::btree()
    pageFile.incrPageHeaderNumPages();
    cout<<"NUM PAGE FILES " << pageFile.getTotalPages();
    pageFile.close();
+   pageFile.open(pagefileName);
+	recFile.open(recordfileName);
 }
 
 void btree::insert(record rec)
 {
-	pageFile.open(pagefileName);
-	recFile.open(recordfileName);
 
 	//append the record to the record file
 	char* buffer =  (char*)malloc(sizeof(record));
@@ -130,8 +130,7 @@ void btree::insert(record rec)
 		}
 		
 	}
-	pageFile.close();
-	recFile.close();
+	
 	return;
 
 }
@@ -317,13 +316,13 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 		if(MAX_NUM_KEYS%2)
 		{
 			recPageL.numTuples = (MAX_NUM_KEYS)/2;
-			recPageR.numTuples = (MAX_NUM_KEYS)/2;
+			recPageR.numTuples = (MAX_NUM_KEYS)/2-1;
 		}
 		//if even
 		else
 		{
 			recPageL.numTuples = (MAX_NUM_KEYS+1)/2;
-			recPageR.numTuples = (MAX_NUM_KEYS+1)/2-1;
+			recPageR.numTuples = (MAX_NUM_KEYS+1)/2;
 		}
 
 	}
@@ -430,7 +429,7 @@ node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 		}
 	}
 	pageNode.pointers[MAX_NUM_KEYS] = nextPtr;
-	
+
 	//sanity check
 	pageNode.pointers[holdPos] = leftPage;
 	pageNode.pointers[holdPos +1] = rightPage;
