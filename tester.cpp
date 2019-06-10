@@ -36,7 +36,7 @@ void endlessTesting(){
 
    while(i){
       int i = 0;
-      cout<<"\nPlease choose a choice from the following, press anything to quit: "<<endl;
+      cout<<"\nPlease choose a choice from the following, press 0 to quit: "<<endl;
       cout<<"1 - Insert\n2 - Bulk Load\n3 - Search"<<endl;
       cin>>i;
       if(i==1)
