@@ -2,6 +2,7 @@
 #include "recordfile.h"
 #include "pagefile.h"
 #include "btree.h"
+#include <chrono>
 
 using namespace std;
 
@@ -16,23 +17,12 @@ void insertTesting(btree t);
 
 int main()
 {
-   // test_recordfile();
-   // test_simplePageFile();
+   //OTHER TESTING FUNCTIONS 
+   //test_recordfile();
+   //test_simplePageFile();
    //test_singleNodeManipulations();
 
-   // btree tree =  btree();
-   // tree.readInCSV("smalldata");
-   // const char* filen = "treefile.txt";
-   // tree.pageFile.open(filen);
-
    endlessTesting();
-
-   // int root = tree.pageFile.getRootNode();
-   // cout<<"FINAL TREE PRINT"<<endl;
-   // cout<<"root: "<<root<<endl;
-   // tree.pageFile.printNode(tree.pageFile.read(root));
-
-   // tree.pageFile.close();
 
 }
 
@@ -46,7 +36,7 @@ void endlessTesting(){
 
    while(i){
       int i = 0;
-      cout<<"\nPlease choose a choice from the following, press 0 to quit: "<<endl;
+      cout<<"\nPlease choose a choice from the following, press anything to quit: "<<endl;
       cout<<"1 - Insert\n2 - Bulk Load\n3 - Search"<<endl;
       cin>>i;
       if(i==1)
@@ -109,7 +99,11 @@ void insertTesting(btree t){
    temp = temp.substr(0,14);
    strcpy(currRec.password, temp.c_str());
 
+   std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
    t.insert(currRec);
+   std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+   std::chrono::duration<double> time_span = end_time - start_time;
+   std::cout << std::fixed << "INSERT: " << time_span.count() << "s" << std::endl;
    return;
 }
 
@@ -119,7 +113,12 @@ void searchTesting(btree t){
    cout<<"SEARCH: Enter an employee ID to search for: ";
    cin>>empID;
    cout<<endl;
+   std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
    int recID = t.search(empID);
+   std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+   std::chrono::duration<double> time_span = end_time - start_time;
+   std::cout << std::fixed << "SEARCH: " << time_span.count() << "s" << std::endl;
+
    if(recID == -1)
    {
       cout<<"Employee ID not found";
@@ -158,7 +157,12 @@ void bulkLoadTesting(btree t){
    cin>>fileName;
    cout<<endl;
    const char* fileN = fileName.c_str();
+   std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
    t.readInCSV(fileN);
+   std::chrono::high_resolution_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+   
+   std::chrono::duration<double> time_span = end_time - start_time;
+   std::cout << std::fixed << "INSERT: " << time_span.count() << "s" << std::endl;
    return;
 }
 

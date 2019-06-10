@@ -38,7 +38,6 @@ class pagefile
 		int open(const char* &filename);
 		int close();
         node read(int pageID);
-        int endPID();
         void write(int pageID, node page);
         void writeToFile(int pageID, node page);
         int getTotalRecords(int pageID);

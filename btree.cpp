@@ -6,13 +6,22 @@ btree::btree()
 {
    pagefileName = "treefile.txt";
    recordfileName = "recordfile.txt";
-   pageFile.open(pagefileName);
-   node rootNode =  pageFile.nodeConstructor(0);
-   pageFile.write(0, rootNode);
-   pageFile.setRootNode(0);
-   pageFile.incrPageHeaderNumPages();
-   cout<<"NUM PAGE FILES " << pageFile.getTotalPages()<<endl;;
-   pageFile.close();
+   int isNewFile = pageFile.open(pagefileName);
+   if(isNewFile){
+   	   node rootNode =  pageFile.nodeConstructor(0);
+	   pageFile.write(0, rootNode);
+	   pageFile.setRootNode(0);
+	   pageFile.incrPageHeaderNumPages();
+	   cout<<"NUM PAGE FILES " << pageFile.getTotalPages()<<endl;
+   		cout<<"ROOT NODE " << pageFile.getRootNode()<<endl;
+	   pageFile.close();
+   } else {
+   		pageFile.setRootNode(pageFile.getRootNode());
+   		cout<<"NUM PAGE FILES " << pageFile.getTotalPages()<<endl;
+   		cout<<"ROOT NODE " << pageFile.getRootNode()<<endl;
+   }
+
+  
    pageFile.open(pagefileName);
    recFile.open(recordfileName);
 }

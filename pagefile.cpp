@@ -32,8 +32,10 @@ int pagefile::open(const char* &filename)
 	if(size > 0){
 		//reopen the file in read write mode
 		pFile = fopen(filename, "rb+");
-		cout<<"file exists"
+		// "file exists"
 		if(!pFile) return -1;
+		//differentiator
+		return 0;
 
 	} 
 	//if file doesnt exist 
@@ -48,7 +50,7 @@ int pagefile::open(const char* &filename)
 		memcpy(headerbuff, &header, sizeof(header));
 		fwrite(headerbuff, 1, sizeof(header), pFile);
 	}
-	return 0;
+	return 1;
 }
 
 
@@ -114,11 +116,6 @@ node pagefile::read(int pageID)
 	bufferCounter++;
 
 	return n;
-}
-
-int pagefile::endPID()
-{
-    return 0;
 }
 
 void pagefile::write(int pageID, node page)
@@ -204,7 +201,7 @@ void pagefile::setRootNode(int pageNum)
 	char* buf = (char*)malloc(sizeof(header));
 	fseek(pFile, 0, SEEK_SET);
 	memcpy(buf, &header, FILE_HEADER_SIZE);
-	fwrite(buf,1, FILE_HEADER_SIZE, pFile);
+	fwrite(buf, FILE_HEADER_SIZE,1, pFile);
 	return;
 
 }
