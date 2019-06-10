@@ -126,13 +126,12 @@ void searchTesting(btree t){
       return;
    }
 
-   t.recFile.open(t.recordfileName);
+   // t.recFile.open(t.recordfileName);
    char* buf = (char*)malloc(sizeof(record));
    memset(buf, 0, t.recFile.RECORD_SIZE);
    record rec = record();
    t.recFile.read(recID, buf);
 
-   //this code is here in case later I want to print things that aren't ugly
    record* rec_ptr = &rec;
    memset(rec_ptr, 0, sizeof(record));
 
@@ -148,7 +147,7 @@ void searchTesting(btree t){
    // for(int i=0;i<sizeof(record);i++){
    //    printf("%c ",buf[i]);
    // }
-   t.recFile.close();
+   // t.recFile.close();
    return;
 
 }

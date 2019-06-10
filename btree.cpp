@@ -11,10 +11,10 @@ btree::btree()
    pageFile.write(0, rootNode);
    pageFile.setRootNode(0);
    pageFile.incrPageHeaderNumPages();
-   cout<<"NUM PAGE FILES " << pageFile.getTotalPages();
+   cout<<"NUM PAGE FILES " << pageFile.getTotalPages()<<endl;;
    pageFile.close();
    pageFile.open(pagefileName);
-	recFile.open(recordfileName);
+   recFile.open(recordfileName);
 }
 
 void btree::insert(record rec)
@@ -60,7 +60,7 @@ void btree::insert(record rec)
 				splitPages.push_back(keyToAdd);
 				splitPages.push_back(recordID);
 				splitPages = splitNode(currNode, 1, splitPages);
-				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- LEAFFF"<<endl;
+				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- LEAF"<<endl;
 				for(int i =0; i< splitPages.size(); i++)
 				{
 					cout<<splitPages[i]<<" ";
@@ -69,7 +69,7 @@ void btree::insert(record rec)
 			else
 			{
 				splitPages = splitNode(currNode, 0, splitPages);
-				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- NODEE"<<endl;
+				cout<<"\nPRINT RECIEVED PAGES -- IN INSERT --- NODE"<<endl;
 				for(int i =0; i< splitPages.size(); i++)
 				{
 					cout<<splitPages[i]<<" ";
@@ -111,7 +111,6 @@ void btree::insert(record rec)
 
 				node rewrite = insertVal(keyToAdd, recordID, currNode);
 				pageFile.write(currNode.pageNum, rewrite);
-				cout<<"refreshed node"<< endl;
 				pageFile.printNode(rewrite);
 
 
@@ -245,7 +244,6 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 	//pastpages: 0-lPage, 1-rPage, 2-key
 	else
 	{
-		// cout<<"\nKEY WE R PUSHING BEGINNING   -      "<<pastPages[2]<<pastPages[0]<<pastPages[1]<<endl;
 		returnPages.push_back(0);
 		// cout<<"size of return pages"
 		//to write everything to the same array
@@ -291,7 +289,6 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 			    //this val gets pushed up
 			    returnPages[2] = tempKeys[i];
 
-			    //returnPages.push_back(tempKeys[i]);
 			    recPageL.keys[i] = -1;
 			    recPageL.pointers[i] = tempPointers[i];
 			    recPageR.pointers[0] = tempPointers[i+1];
@@ -341,57 +338,6 @@ vector<int> btree::splitNode(node currNode, bool isLeaf, vector<int> pastPages)
 
 }
 
-
-// node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
-// {
-// 	if(pageNode.numTuples >=  MAX_NUM_KEYS)
-// 	{
-// 		cout<<"FULL"<<endl;
-// 		return pageNode;
-// 	}
-
-// 	bool replace = false;
-// 	int tempKey = 0;
-// 	int tempPtr = 0;
-// 	int nextKey = key;
-// 	int nextPtr = rightPage;
-// 	int holdPos = 0;
-// 	for(int i = 0; i<MAX_NUM_KEYS-1; i++)
-// 	{
-// 		if(replace && !(tempKey==-1 && tempPtr==-1))
-// 		{
-// 			nextKey = pageNode.keys[i];
-// 			nextPtr = pageNode.pointers[i+1];
-// 			pageNode.keys[i] = tempKey;
-// 			pageNode.pointers[i+1] = tempPtr;
-// 			tempKey = nextKey;
-// 			tempPtr = nextPtr;
-// 		}
-// 		else if((key<pageNode.keys[i] || pageNode.keys[i] == -1) && !replace)
-// 		{
-// 			replace = true;
-// 			holdPos = i;
-// 			tempKey = pageNode.keys[i];
-// 			tempPtr = pageNode.pointers[i+1];
-// 			pageNode.keys[i] = nextKey;
-// 			pageNode.pointers[i+1] = nextPtr;
-// 		}
-// 	}
-// 	if(!(tempKey==-1 && tempPtr==-1))
-// 	{
-// 		pageNode.keys[MAX_NUM_KEYS-1] = nextKey;
-// 		pageNode.pointers[MAX_NUM_KEYS] = nextPtr;
-// 	}
-	
-// 	//sanity check
-// 	// pageNode.pointers[holdPos] = leftPage;
-// 	// pageNode.pointers[holdPos +1] = rightPage;
-
-// 	pageNode.numTuples+=1;
-
-// 	return pageNode;
-
-// }
 
 node btree::insertValPage(int key, int leftPage, int rightPage, node pageNode)
 {
@@ -476,7 +422,6 @@ node btree::insertVal(int key, int recID, node pageNode)
 		}
 	}
 
-	//TODO:increment number of records
 	pageNode.numTuples+=1;
 
 
@@ -495,7 +440,6 @@ int btree::search(int key)
 	}
 
 	int recID = searchValue(key, root);
-	
 	return recID;
 
 }
@@ -528,7 +472,6 @@ int btree::searchValue(int key, node currNode)
 
 void btree::readInCSV(const char* filename)
 {
- 	// FILE * csvFile = fopen(filename, "rb+");
  	std::ifstream  inputF(filename);
 	std::string line;
 	int numOfCommas = 0;
@@ -626,6 +569,5 @@ void btree::readInCSV(const char* filename)
 	}
 
 	inputF.close();
-	// fclose(pFile);
 	return;
 }

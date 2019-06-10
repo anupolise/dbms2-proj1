@@ -180,7 +180,6 @@ void recordfile::readInCSV2(const char* filename)
 		char* buffer =  (char*)malloc(sizeof(record));
 		memset(buffer, 0, sizeof(record));
 		memcpy(buffer, &currRec, sizeof(currRec));
-		// printf("%s", buffer);
 
 		append(buffer);
 
@@ -190,10 +189,10 @@ void recordfile::readInCSV2(const char* filename)
 
 		printf("Copied byte array is:\n");
 
-		// //print value in buffer
-		// for(int i=0;i<sizeof(record);i++){
-		// 	printf("%c ",buffer[i]);
-		// }
+		//print value in buffer
+		for(int i=0;i<sizeof(record);i++){
+			printf("%c ",buffer[i]);
+		}
 		
 		printf("\n");
 
@@ -231,13 +230,6 @@ int recordfile::open(const char* filename)
 		pFile = fopen(filename, "rb+");
 		if(!pFile) return -1;
 
-		//get num of records
-		fseek(pFile, 0, SEEK_SET);
-   	 	fgets(headerbuff, HEADER_SIZE, pFile);
-    	int numRecs = atoi(headerbuff);
-
-    	//debug message
-    	// cout<<"Number of recs  -----  " <<numRecs<<endl;
 	} 
 	//if file doesnt exist 
 	else {
@@ -246,24 +238,18 @@ int recordfile::open(const char* filename)
 		if(!pFile) return -1;
 
 		//write 0 to header
-		// headerbuff= (char*)0;
 
 		//print value in buffer
 		// for(int i = 0; i < sizeof(int);i++){
 		// 	printf("%d\n ", (int)headerbuff);
 		// }
 
-		// sprintf(headerbuff, "%d", 0);
 		int temp = 0;
 		int* header = &temp;
 		fseek(pFile, 0, SEEK_SET);
-		// int header = 0;
-		// fwrite(headerbuff,1, sizeof(headerbuff), pFile);
 		fwrite((char*)header, sizeof(int), 1, pFile);
 
-		
-		// fprintf(pFile, "%d", header);
-	}
+		}
 	return 0;
 }
 
@@ -296,17 +282,14 @@ int recordfile::append(char* buffer)
 	int header = 0;
 	fseek(pFile, 0, SEEK_SET);
 	fread(headerbuff, HEADER_SIZE, 1,pFile);
-    // fgets(headerbuff, HEADER_SIZE, pFile);
 
     //get number of records in file and do math
     int* numRecs = (int*)headerbuff;
-    // int numRecs = atoi(headerbuff);
     cout<<"insertion number: "<<*numRecs<<endl;
     int position = *numRecs *RECORD_SIZE + HEADER_SIZE;
     (*numRecs)++;
    	
    	headerbuff = (char*)numRecs;
-	// sprintf(headerbuff,"%d", *numRecs);
 	fseek(pFile, 0, SEEK_SET);
 	fwrite((char*)headerbuff, sizeof(HEADER_SIZE), 1, pFile);
 

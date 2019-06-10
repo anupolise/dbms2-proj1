@@ -32,7 +32,7 @@ int pagefile::open(const char* &filename)
 	if(size > 0){
 		//reopen the file in read write mode
 		pFile = fopen(filename, "rb+");
-
+		cout<<"file exists"
 		if(!pFile) return -1;
 
 	} 
@@ -96,7 +96,7 @@ node pagefile::read(int pageID)
 			return nodeBuffer[i];
 	}
 
-	cout<<"READ: putting "<<pageID<<" into the buffer."<<endl;
+	// cout<<"READ: putting "<<pageID<<" into the buffer."<<endl;
 	//if its not in the buffer
 	node n = node();
 	char* buffer =  (char*)malloc(PAGE_SIZE);
@@ -131,7 +131,6 @@ void pagefile::write(int pageID, node page)
 			return;
 		}
 	}
-	cout<<"YO WHERE IS THE FILE"<<endl;
 	//if for some weird reason its not in buffer...
 	//actually idk fi we shoudl do this
 	writeToFile(pageID, page);
@@ -140,7 +139,7 @@ void pagefile::write(int pageID, node page)
 	for(int i=0; i<BUFFER_SIZE; i++)
 	{
 		if(nodeBuffer[i].pageNum == pageID){
-			cout<<"WRITE: putting "<<pageID<<" into the buffer."<<endl;
+			// cout<<"WRITE: putting "<<pageID<<" into the buffer."<<endl;
 
 			nodeBuffer[i] = page;
 			return;
