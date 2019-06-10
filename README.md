@@ -1,9 +1,9 @@
-#README
+# README
 
-##Anu Polisetty 8916967
+## Anu Polisetty 8916967
 
 ## HOW TO RUN
-Make sure you ```make clean``` before creating a *new* tree, this clears the recordfile and pagefile. If you  then call ```make``` - this will compile all the neccessary components. Lastly, run ```./btreeMain```. This will launch a commandline interface that will give you 3 choices: 1 - insert, 2 - bulk load, and 3 - search. The interface walks the user through these commands. It is important to note that when using bulkload and naming a file to bulk load, the file must be within the same directory.
+Make sure you ```make clean``` before creating a *new* tree, this clears the recordfile and pagefile. If you  then call ```make``` - this will compile all the neccessary components. Lastly, run ```./btreeMain```. This will launch a commandline interface that will give you 3 choices: 1 - insert, 2 - bulk load, and 3 - search. The interface walks the user through these commands. It is important to note that when using bulkload, the file must be within the same directory.
 
 That being said, if you don't want to create a new file, I left 4 files in this directory for testing:
 smalldata: contains 1-2117 records
