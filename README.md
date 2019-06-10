@@ -1,6 +1,6 @@
 # README
 
-## Anu Polisetty 8916967
+### Anu Polisetty 8916967
 
 ## HOW TO RUN
 Make sure you ```make clean``` before creating a *new* tree, this clears the recordfile and pagefile. If you  then call ```make``` - this will compile all the neccessary components. Lastly, run ```./btreeMain```. This will launch a commandline interface that will give you 3 choices: 1 - insert, 2 - bulk load, and 3 - search. The interface walks the user through these commands. It is important to note that when using bulkload, the file must be within the same directory.
@@ -19,3 +19,5 @@ As you may have noticed there are a lot of print statements - I left them in so 
 A note on the page node, each node has a pageID, boolean isLeaf, int numTuples, and two arrays. The first array represents all the keys in the node and the second array represents the left and right pointers for these keys. The ith key has a left pointer and right pointer in i and i+1 respectively in the pointers array.
 A note on the buffer, because of the way I handle splits, each node is completely edited when written into the buffer. This means that there is no such thing as a dirty read, because I only write back to the buffer if the node is "finished". 
 My code also works for entering data points out of order, although it's just less efficient for this, it doesn't implement any external sorting.
+
+https://github.com/anupolise/dbms2-proj1/tree/master
