@@ -1,3 +1,0 @@
-notes;
-for blue i think i should store record size and num of records
-and for page file i should store: leaf node vs non leaf (boolean), size of key, and size of page id, num of keys in the node
